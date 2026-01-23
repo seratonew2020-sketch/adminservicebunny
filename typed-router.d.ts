@@ -44,6 +44,13 @@ declare module 'vue-router/auto-routes' {
       { id: ParamValue<false> },
       | never
     >,
+    '/DailyReport': RouteRecordInfo<
+      '/DailyReport',
+      '/DailyReport',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/employees': RouteRecordInfo<
       '/employees',
       '/employees',
@@ -93,6 +100,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/settingtime': RouteRecordInfo<
+      '/settingtime',
+      '/settingtime',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/timeall': RouteRecordInfo<
       '/timeall',
       '/timeall',
@@ -128,6 +142,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/attendance/[id].vue': {
       routes:
         | '/attendance/[id]'
+      views:
+        | never
+    }
+    'src/pages/DailyReport.vue': {
+      routes:
+        | '/DailyReport'
       views:
         | never
     }
@@ -170,6 +190,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings.vue': {
       routes:
         | '/settings'
+      views:
+        | never
+    }
+    'src/pages/settingtime.vue': {
+      routes:
+        | '/settingtime'
       views:
         | never
     }

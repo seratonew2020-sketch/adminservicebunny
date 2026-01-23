@@ -42,4 +42,12 @@ export default defineConfig({
       plugins: [autoprefixer()],
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
+  },
 });

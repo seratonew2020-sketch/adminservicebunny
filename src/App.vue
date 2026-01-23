@@ -36,6 +36,7 @@
   const navItems = [
     { title: 'dashboard', icon: 'mdi-view-dashboard-outline', path: '/' },
     { title: 'reports', icon: 'mdi-file-chart-outline', path: '/reports' },
+    { title: 'time_report', icon: 'mdi-clock-time-four-outline', path: '/timeall' },
     { title: 'employees', icon: 'mdi-account-group-outline', path: '/employees' },
     { title: 'schedule', icon: 'mdi-calendar-clock-outline', path: '/schedule' },
     { title: 'fingerprint_scan', icon: 'mdi-fingerprint', path: '/fingerprintscan' },

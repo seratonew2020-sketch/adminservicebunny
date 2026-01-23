@@ -14,11 +14,14 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fastify/cors": "^11.2.0",
     "@intlify/unplugin-vue-i18n": "^11.0.3",
     "@mdi/font": "^7.4.47",
     "@supabase/supabase-js": "^2.91.0",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
+    "dayjs": "^1.11.19",
+    "fastify": "^5.7.1",
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",
     "pinia": "^3.0.4",
