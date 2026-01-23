@@ -37,9 +37,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/attendance/[id]': RouteRecordInfo<
+      '/attendance/[id]',
+      '/attendance/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
     '/employees': RouteRecordInfo<
       '/employees',
       '/employees',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/fingerprintscan': RouteRecordInfo<
+      '/fingerprintscan',
+      '/fingerprintscan',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -79,6 +93,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/timeall': RouteRecordInfo<
+      '/timeall',
+      '/timeall',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -104,9 +125,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/attendance/[id].vue': {
+      routes:
+        | '/attendance/[id]'
+      views:
+        | never
+    }
     'src/pages/employees.vue': {
       routes:
         | '/employees'
+      views:
+        | never
+    }
+    'src/pages/fingerprintscan.vue': {
+      routes:
+        | '/fingerprintscan'
       views:
         | never
     }
@@ -137,6 +170,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settings.vue': {
       routes:
         | '/settings'
+      views:
+        | never
+    }
+    'src/pages/timeall.vue': {
+      routes:
+        | '/timeall'
       views:
         | never
     }

@@ -1,16 +1,79 @@
-import Fastify from 'fastify';
+import Fastify from "fastify";
+import cors from "@fastify/cors";
+import * as dotenv from "dotenv";
+import logRoutes from "./routes/logs";
+import reportRoutes from "./routes/report";
+import masterTimeRoutes from "./routes/masterTimes";
+import { fetchReportData, generatePDFReport } from "./services/reportService";
+
+// 1. โหลด Environment Variables
+dotenv.config();
 
 const fastify = Fastify({
-  logger: true
+  logger: true,
 });
 
-fastify.get('/', async (request, reply) => {
-  return { hello: 'world' };
+// 2. Setup Supabase Check (Supabase logic is in lib/supabase.ts)
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey =
+  process.env.SUPABASE_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("❌ Error: Missing SUPABASE_URL or SUPABASE_KEY in .env file");
+  process.exit(1);
+}
+
+// 3. Register CORS (อนุญาตให้ Frontend เข้าถึง)
+fastify.register(cors, {
+  origin: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
 });
 
+// 4. Register Modular Routes
+fastify.register(logRoutes, { prefix: "/api" });
+fastify.register(reportRoutes, { prefix: "/api" });
+fastify.register(masterTimeRoutes, { prefix: "/api" });
+
+// Route สำหรับรายงาน PDF (Legacy/Direct)
+fastify.get("/report/pdf", async (request, reply) => {
+  const { startDate, endDate } = request.query as {
+    startDate: string;
+    endDate: string;
+  };
+
+  if (!startDate || !endDate) {
+    return reply.code(400).send({ error: "Missing startDate or endDate" });
+  }
+
+  try {
+    const data = await fetchReportData(startDate, endDate);
+    const pdfBuffer = await generatePDFReport(data);
+
+    reply.header("Content-Type", "application/pdf");
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename="attendance-report-${startDate}.pdf"`,
+    );
+    return reply.send(pdfBuffer);
+  } catch (err) {
+    fastify.log.error(err);
+    return reply.code(500).send({ error: "Failed to generate report" });
+  }
+});
+
+// Route เช็คสถานะ Server
+fastify.get("/", async () => {
+  return { status: "OK", message: "WorkTime Backend is running 🚀" };
+});
+
+// 5. Start Server
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000 });
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+    await fastify.listen({ port, host: "0.0.0.0" });
+    console.log(`Server running at http://localhost:${port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

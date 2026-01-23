@@ -38,6 +38,7 @@
     { title: 'reports', icon: 'mdi-file-chart-outline', path: '/reports' },
     { title: 'employees', icon: 'mdi-account-group-outline', path: '/employees' },
     { title: 'schedule', icon: 'mdi-calendar-clock-outline', path: '/schedule' },
+    { title: 'fingerprint_scan', icon: 'mdi-fingerprint', path: '/fingerprintscan' },
   ]
 </script>
 
@@ -170,7 +171,7 @@
       </v-app-bar>
 
       <!-- Content Area -->
-      <v-main :class="theme.global.current.value.dark ? 'bg-background-dark' : 'bg-background-light'">
+      <v-main class="w-100 h-100 d-flex flex-column" :class="theme.global.current.value.dark ? 'bg-background-dark' : 'bg-background-light'">
         <router-view v-slot="{ Component }">
           <v-fade-transition hide-on-leave>
             <component :is="Component" />
@@ -181,7 +182,7 @@
 
     <!-- Login View (No App Frame) -->
     <template v-else>
-      <v-main>
+      <v-main class="w-100 h-100">
         <router-view />
       </v-main>
     </template>

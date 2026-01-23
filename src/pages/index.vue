@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTheme } from 'vuetify'
 import { useI18n } from 'vue-i18n'
+import { fetchStats, fetchEmployees } from '@/services/api'
 
 const theme = useTheme()
 const { t } = useI18n()
@@ -10,70 +11,85 @@ const { t } = useI18n()
 const stats = ref([
   {
     title: 'total_employees',
-    value: '1,248',
-    icon: 'groups',
+    value: '-',
+    mdiIcon: 'mdi-account-group',
     color: 'blue-darken-2',
     bgColor: 'blue-lighten-5',
     darkBgColor: 'rgba(30, 58, 138, 0.2)'
   },
   {
     title: 'currently_clocked_in',
-    value: '856',
-    icon: 'login',
+    value: '-',
+    mdiIcon: 'mdi-clock-check-outline',
     color: 'green-darken-1',
     bgColor: 'green-lighten-5',
     darkBgColor: 'rgba(6, 78, 59, 0.2)'
   },
   {
     title: 'late_arrivals',
-    value: '12',
-    icon: 'schedule',
+    value: '-',
+    mdiIcon: 'mdi-clock-alert-outline',
     color: 'orange-darken-2',
     bgColor: 'amber-lighten-5',
     darkBgColor: 'rgba(120, 53, 15, 0.2)'
   }
 ])
 
-// --- Mock Data: Table Headers ---
+// --- Table Headers ---
 const headers = computed(() => [
-  { title: t('table_employee'), key: 'employee', align: 'start', sortable: true },
-  { title: t('table_id'), key: 'empId', align: 'start', sortable: true },
+  { title: t('table_employee'), key: 'first_name', align: 'start', sortable: true },
+  { title: t('table_id'), key: 'employee_id', align: 'start', sortable: true },
   { title: t('table_department'), key: 'department', align: 'start', sortable: true },
   { title: t('table_status'), key: 'status', align: 'start', sortable: true },
   { title: t('table_actions'), key: 'actions', align: 'end', sortable: false },
 ])
 
-// --- Mock Data: Employees ---
+// --- Employees Data ---
 const search = ref('')
-const employees = ref([
-  {
-    id: 1,
-    name: 'Sarah Jenkins',
-    email: 'sarah.j@enterprise.com',
-    empId: '#EMP-2041',
-    department: 'Engineering',
-    status: 'Clocked In',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDzoAPdo1Zi2wEB9_b_vtIQbveZQa1fsOophKrCOj6Nrdtx7wLIkyxuOjyWl5FU9yzBNTtjOrcZyfqGbQu3ejC3G9il3PJw5WCPM3yXOAwmSZ_A8HBmYLbFgSTeg3TOdf0TsczzLd7_xIIT9EUUSis5u2XFexabeevWQ5iebUPwWPWtYcBqk24i_BPsjIoMqex8ZuBFKYxoJiwy_JbkUVH2Dchok3wOG-vehDnuKUY55bWnxvOdOFlcbnSahQ6pURnPjQfS4UXiZqY'
-  },
-  {
-    id: 2,
-    name: 'Marcus Thompson',
-    email: 'm.thompson@enterprise.com',
-    empId: '#EMP-2045',
-    department: 'Product Design',
-    status: 'Late Arrival',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDZzzalqXym7ZxGroaG-aa5JGfyOZUZFW9JfTx9POGE44zMFY3EA4Hjsrvsfyu0hxT-Udupjfgo7AAjMGOHl-DPwOCZc7cHLzRCv087eEiAPVplsLTCeHDzySCp8JjcShlwblccsD4e20m6joDfF74Dz-CSxyM7pLJyAeOdBvp-bpP45SbOV7fyFN_11GmTirHSaVm9I_13Eg6vNRCwBkIh14C3bq8wvcyUbrMEd-jRduQNMRrR6NIohE3uLy7n9SSz10vk-TuR1Bk'
-  },
-  {
-    id: 3,
-    name: 'Elena Rodriguez',
-    email: 'elena.r@enterprise.com',
-    empId: '#EMP-2102',
-    department: 'Marketing',
-    status: 'Off-duty',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA68GgEc1TPc9GPRLdfkktQSX74sotRuiOMYLrqFBPpuO2cTnZFZ8EwZIv5bEavxlErmqPbFsZT7QAYbnEgVRNaCocYffOqFbJxIrmpaHS9QIma2NMQqQjr8eDqDkHggj6xbKcThHPTz6vhnjw8BohXnz_mwYTpmkXYbEX1ATy7729VQ53Zh3TnK-fAH9yqHChWlDjKv1R4NUk92v__Uh-_bRIwweALKFkMj5vQe_QeFMdoLLtWVVvRwtSZJtHIW2_kcpkAIb_It0Y'
+const loading = ref(false)
+const employees = ref([])
+const page = ref(1)
+const itemsPerPage = ref(10)
+const totalItems = ref(0) // Total count from API
+
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value))
+
+const paginationText = computed(() => {
+  if (totalItems.value === 0) return t('showing_stats') || 'No data'
+  const start = (page.value - 1) * itemsPerPage.value + 1
+  const end = Math.min(page.value * itemsPerPage.value, totalItems.value)
+  return `${t('showing_stats') || 'Showing'} ${start} - ${end} of ${totalItems.value}`
+})
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const [empResponse, statsData] = await Promise.all([
+      fetchEmployees({ page: page.value, limit: itemsPerPage.value }),
+      fetchStats()
+    ])
+
+    // Handle new response structure { data, total }
+    employees.value = empResponse.data.map(emp => ({
+      ...emp,
+      status: emp.status || (emp.is_active ? 'active' : 'inactive')
+    }))
+    totalItems.value = empResponse.total
+
+    // Update stats with real data
+    stats.value[0].value = statsData.total_employees.toString()
+    stats.value[1].value = statsData.currently_clocked_in.toString()
+    stats.value[2].value = statsData.late_arrivals.toString()
+  } catch (error) {
+    console.error('Failed to load dashboard data:', error)
+  } finally {
+    loading.value = false
   }
-])
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <template>
@@ -122,7 +138,7 @@ const employees = ref([
     <!-- Content Card -->
     <v-card flat rounded="xl" class="border card-shadow overflow-hidden" :class="theme.global.current.value.dark ? 'bg-surface-dark' : 'bg-white'">
       <div class="px-6 py-4 border-b d-flex flex-column flex-sm-row justify-space-between align-sm-center gap-3">
-        <h2 class="text-h6 font-weight-bold">Recent Activity</h2>
+        <h2 class="text-h6 font-weight-bold">ข้อมูลพนักงาน</h2>
 
         <div class="d-flex align-center gap-2" style="max-width: 400px; width: 100%;">
           <v-text-field
@@ -135,7 +151,7 @@ const employees = ref([
             rounded="lg"
             bg-color="transparent"
           ></v-text-field>
-          <v-btn icon="mdi-filter-variant" variant="text" color="medium-emphasis"></v-btn>
+          <v-btn icon="mdi-filter-variant" variant="text" color="medium-emphasis" @click="loadData"></v-btn>
         </div>
       </div>
 
@@ -143,6 +159,7 @@ const employees = ref([
         :headers="headers"
         :items="employees"
         :search="search"
+        :loading="loading"
         item-value="id"
         class="bg-transparent"
         hover
@@ -151,14 +168,16 @@ const employees = ref([
            <tr class="hover-row transition-colors">
               <td class="px-6 py-4">
                  <div class="d-flex align-center gap-3">
-                    <v-avatar size="40" :image="item.avatar" class="border"></v-avatar>
+                    <v-avatar size="40" :image="item.avatar_url || 'https://cdn.vuetifyjs.com/images/lists/1.jpg'" class="border"></v-avatar>
                     <div>
-                       <p class="text-sm font-weight-bold mb-0">{{ item.name }}</p>
+                       <p class="text-sm font-weight-bold mb-0">
+                         {{ item.first_name }} {{ item.last_name }}
+                       </p>
                        <p class="text-caption text-medium-emphasis mb-0">{{ item.email }}</p>
                     </div>
                  </div>
               </td>
-              <td class="px-6 py-4 text-sm text-medium-emphasis">{{ item.empId }}</td>
+              <td class="px-6 py-4 text-sm text-medium-emphasis">#{{ item.employee_id }}</td>
               <td class="px-6 py-4">
                   <v-chip
                     size="small"
@@ -167,17 +186,19 @@ const employees = ref([
                     :color="item.department === 'Engineering' ? 'blue' : item.department === 'Product Design' ? 'purple' : 'orange'"
                     variant="tonal"
                   >
-                    {{ item.department }}
+                    {{ item.department || 'Unknown' }}
                   </v-chip>
               </td>
               <td class="px-6 py-4">
                  <div class="d-flex align-center gap-2">
                     <v-icon
                       size="12"
-                      :color="item.status === 'Clocked In' ? 'success' : item.status === 'Late Arrival' ? 'warning' : 'grey'"
+                      :color="item.status === 'active' ? 'success' : 'grey'"
                       icon="mdi-circle"
                     ></v-icon>
-                    <span class="text-sm font-weight-medium text-medium-emphasis">{{ item.status }}</span>
+                    <span class="text-sm font-weight-medium text-medium-emphasis text-capitalize">
+                      {{ item.status || 'Unknown' }}
+                    </span>
                  </div>
               </td>
               <td class="px-6 py-4 text-end">
@@ -187,13 +208,27 @@ const employees = ref([
         </template>
 
         <template v-slot:bottom>
-           <div class="pa-4 border-t d-flex align-center justify-space-between">
-              <p class="text-caption text-medium-emphasis mb-0 d-none d-sm-block">{{ t('showing_stats') }}</p>
-              <div class="d-flex align-center gap-2">
-                 <v-btn icon="mdi-chevron-left" variant="outlined" size="small" rounded="lg" disabled></v-btn>
-                 <v-btn icon="mdi-chevron-right" variant="outlined" size="small" rounded="lg"></v-btn>
-              </div>
-           </div>
+            <div class="pa-4 border-t d-flex align-center justify-space-between">
+               <p class="text-caption text-medium-emphasis mb-0 d-none d-sm-block">{{ paginationText }}</p>
+               <div class="d-flex align-center gap-2">
+                  <v-btn
+                    icon="mdi-chevron-left"
+                    variant="outlined"
+                    size="small"
+                    rounded="lg"
+                    :disabled="page <= 1"
+                    @click="page > 1 && (page--, loadData())"
+                  ></v-btn>
+                  <v-btn
+                    icon="mdi-chevron-right"
+                    variant="outlined"
+                    size="small"
+                    rounded="lg"
+                    :disabled="page >= totalPages"
+                     @click="page < totalPages && (page++, loadData())"
+                  ></v-btn>
+               </div>
+            </div>
         </template>
       </v-data-table>
     </v-card>
