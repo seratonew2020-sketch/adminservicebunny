@@ -1,5 +1,13 @@
-import axios from 'axios'
-
+import axios from 'axios';
+const api = axios.create({
+  // ตรวจสอบว่าเป็น Production หรือไม่ ถ้าใช่ให้ไปที่ Vercel URL
+  baseURL: import.meta.env.PROD
+    ? 'https://vue3-app-ten.vercel.app/api'
+    : 'http://localhost:3000/api',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
 // ดึงค่า Environment Variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -226,3 +234,4 @@ export const deleteMasterTime = async (id) => {
     throw error
   }
 }
+export default api;

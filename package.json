@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:e2e": "playwright test",
-    "dev:backend": "nodemon server.js"
+    "dev:backend": "cd backend && npm run dev",
+    "dev:all": "npm-run-all2 --parallel dev dev:backend"
+
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
@@ -37,7 +39,8 @@
     "vue-i18n": "^11.2.8",
     "vue-router": "^4.6.4",
     "vuetify": "^3.11.7",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "npm-run-all2": "^8.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
