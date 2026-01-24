@@ -73,18 +73,17 @@ fastify.get("/", async () => {
   return { status: "OK", message: "WorkTime Backend is running 🚀" };
 });
 
-// 5. Start Server
-const start = async () => {
-  try {
-    const port = 3000;
-    await fastify.listen({ port, host: "0.0.0.0" });
-    console.log(`✅ Backend running at http://localhost:${port}`);
-  } catch (err) {
-    fastify.log.error(err);
-    process.exit(1);
-  }
-};
-
-if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+// 5. Start Server (Only for Local Development)
+if (require.main === module) {
+  const start = async () => {
+    try {
+      const port = Number(process.env.PORT) || 3000;
+      await fastify.listen({ port, host: "0.0.0.0" });
+      console.log(`✅ Backend running at http://localhost:${port}`);
+    } catch (err) {
+      fastify.log.error(err);
+      process.exit(1);
+    }
+  };
   start();
 }
