@@ -60,17 +60,75 @@ export const fetchAttendanceLogs = async ({ startDate, endDate, empId, name }) =
     }
 
     // 4. Map ข้อมูลกลับ
-    // Note: User requested to display raw data as much as possible.
-    // If 'io_type' is missing, try 'action' (based on user JSON dump).
+    // User requested specific times: 10:00 and 11:00 as master shifts
+    const definedShifts = [
+      { start_time: '10:00' },
+      { start_time: '11:00' },
+      { start_time: '19:00' },
+      { start_time: '18:00' },
+
+    ]
+
+    const calculateTimeStatus = (logTimeISO, type) => {
+      // Filter only Check-In
+      const isCheckIn = type === 'check_in' || type === 'CHECK' || type === 'เข้างาน'
+                        || (typeof type === 'string' && type.toLowerCase().includes('in'));
+
+      if (!isCheckIn) return { status_detail: '', late_minutes: 0, is_late: '' }
+
+      // Parse Log Time (UTC Face Value)
+      const logDate = new Date(logTimeISO)
+      const logH = logDate.getUTCHours()
+      const logM = logDate.getUTCMinutes()
+      const logTotalM = logH * 60 + logM
+
+      // Find Closest Shift
+      let bestShift = null
+      let minDiff = Infinity
+
+      for (const shift of definedShifts) {
+        const [sH, sM] = shift.start_time.split(':').map(Number)
+        const shiftTotalM = sH * 60 + sM
+        const diff = logTotalM - shiftTotalM // +ve = Late, -ve = Early
+
+        // Logic: Pick closest shift
+        if (Math.abs(diff) < minDiff) {
+          minDiff = Math.abs(diff)
+          bestShift = { ...shift, diffMinutes: diff }
+        }
+      }
+
+      if (bestShift && bestShift.diffMinutes > 0) {
+        return {
+          status_detail: `Late (${bestShift.start_time})`,
+          late_minutes: bestShift.diffMinutes,
+          is_late: `${bestShift.diffMinutes} นาที`
+        }
+      } else if (bestShift) {
+         return {
+          status_detail: `On Time (${bestShift.start_time})`,
+          late_minutes: 0,
+          is_late: ''
+        }
+      }
+
+      return { status_detail: '-', late_minutes: 0, is_late: '' }
+    }
+
     return logs.map(log => {
       const emp = employeesMap[log.employee_id] || {}
+      const type = log.io_type || log.action || '-'
+      const { status_detail, late_minutes, is_late } = calculateTimeStatus(log.timestamp, type)
+
       return {
         id: log.id,
         employee_id: log.employee_id,
         name: emp.first_name ? `${emp.first_name || ''} ${emp.last_name || ''}`.trim() : 'Unknown',
         department: emp.department || '-',
         timestamp: log.timestamp,
-        type: log.io_type || log.action || '-', // Fallback to action if io_type is null
+        type: type, // เข้า/ออก
+        status_detail: status_detail,
+        is_late: is_late, // Column 'สาย' (Shows "X นาที" if late, else empty)
         image: log.image_url
       }
     })

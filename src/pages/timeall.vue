@@ -79,7 +79,8 @@ onMounted(() => {
         { title: 'แผนก', key: 'department' },
         { title: 'เวลา', key: 'timestamp' },
         { title: 'สถานะ', key: 'type' },
-        { title: 'รูปภาพ', key: 'image' }
+        { title: 'รายละเอียด', key: 'status_detail' },
+        { title: 'สาย', key: 'is_late' }
       ]"
       :items="report"
       :loading="loading"
