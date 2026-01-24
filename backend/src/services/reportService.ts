@@ -52,7 +52,8 @@ export const calculateDailyStatus = (
     (l: any) =>
       l.io_type?.toUpperCase() === "I" ||
       l.io_type?.toLowerCase() === "checkin" ||
-      l.io_type === "Check-In",
+      l.io_type === "Check-In" ||
+      l.io_type === "check_in",
   );
 
   // ถ้าไม่มี log หรือไม่มีข้อมูลกะงาน (shift) ให้คืนค่า absent ทันที

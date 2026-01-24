@@ -60,6 +60,8 @@ export const fetchAttendanceLogs = async ({ startDate, endDate, empId, name }) =
     }
 
     // 4. Map ข้อมูลกลับ
+    // Note: User requested to display raw data as much as possible.
+    // If 'io_type' is missing, try 'action' (based on user JSON dump).
     return logs.map(log => {
       const emp = employeesMap[log.employee_id] || {}
       return {
@@ -68,7 +70,7 @@ export const fetchAttendanceLogs = async ({ startDate, endDate, empId, name }) =
         name: emp.first_name ? `${emp.first_name || ''} ${emp.last_name || ''}`.trim() : 'Unknown',
         department: emp.department || '-',
         timestamp: log.timestamp,
-        type: log.io_type, // เข้า/ออก
+        type: log.io_type || log.action || '-', // Fallback to action if io_type is null
         image: log.image_url
       }
     })

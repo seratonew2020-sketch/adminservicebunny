@@ -3,9 +3,11 @@ import { ref, onMounted } from 'vue'
 import { fetchAttendanceLogs } from '@/services/logs'
 import dayjs from 'dayjs'
 import 'dayjs/locale/th'
+import utc from 'dayjs/plugin/utc'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
 
 dayjs.extend(buddhistEra)
+dayjs.extend(utc)
 dayjs.locale('th')
 
 const report = ref([])
@@ -17,7 +19,9 @@ const searchName = ref('')
 
 const formatDate = (dateString) => {
   if (!dateString) return "-";
-  return dayjs(dateString).format('D MMM BB เวลา HH:mm น.');
+  // Display as UTC to match the face-value of the database timestamp
+  // (Assuming data was imported as UTC but represents local time)
+  return dayjs.utc(dateString).format('D MMM BB เวลา HH:mm น.');
 }
 
 const loadData = async () => {
