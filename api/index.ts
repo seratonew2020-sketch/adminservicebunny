@@ -1,4 +1,4 @@
-import app from "../backend/src/server";
+import { app } from "../backend/src/server.ts";
 
 export default async function handler(req: any, res: any) {
   await app.ready();

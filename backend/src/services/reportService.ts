@@ -1,29 +1,32 @@
-import { supabase } from "../lib/supabase";
-import { chromium } from "playwright";
+import { supabase } from "../lib/supabase.js";
+// import { chromium } from "playwright"; // Playwright is too heavy for Vercel/AWS Lambda directly
 
 // Initialize Supabase Client
 // Ensure process.env.SUPABASE_URL and process.env.SUPABASE_ANON_KEY are set
 
 export const generatePDFReport = async (reportData: any) => {
-  // 1. Launch Browser
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  throw new Error(
+    "PDF Generation disabled on Vercel (Playwright dependency issue)",
+  );
+  // // 1. Launch Browser
+  // const browser = await chromium.launch();
+  // const page = await browser.newPage();
 
-  // 2. Set Content (Example: You could pass HTML or navigate to a URL)
-  await page.setContent(`
-        <html>
-            <body>
-                <h1>Attendance Report</h1>
-                <pre>${JSON.stringify(reportData, null, 2)}</pre>
-            </body>
-        </html>
-    `);
+  // // 2. Set Content (Example: You could pass HTML or navigate to a URL)
+  // await page.setContent(\`
+  //       <html>
+  //           <body>
+  //               <h1>Attendance Report</h1>
+  //               <pre>\${JSON.stringify(reportData, null, 2)}</pre>
+  //           </body>
+  //       </html>
+  //   \`);
 
-  // 3. PDF Options
-  const pdf = await page.pdf({ format: "A4" });
+  // // 3. PDF Options
+  // const pdf = await page.pdf({ format: "A4" });
 
-  await browser.close();
-  return pdf;
+  // await browser.close();
+  // return pdf;
 };
 
 export const fetchReportData = async (startDate: string, endDate: string) => {

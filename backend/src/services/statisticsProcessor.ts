@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { AttendanceLog, ProcessedLog } from "./logProcessor";
+import { AttendanceLog, ProcessedLog } from "./logProcessor.js";
 
 export interface UserStats {
   userId: string;

@@ -3,7 +3,7 @@ import {
   fetchDailySummary,
   fetchReportData,
   generatePDFReport,
-} from "../services/reportService";
+} from "../services/reportService.js";
 
 async function reportRoutes(fastify: FastifyInstance) {
   const summarySchema = {

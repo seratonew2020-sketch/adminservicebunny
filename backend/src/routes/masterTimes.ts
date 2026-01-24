@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../lib/supabase.js";
 
 interface MasterTimeBody {
   name: string;
@@ -34,11 +34,9 @@ async function masterTimeRoutes(fastify: FastifyInstance) {
 
       // Basic validation
       if (!name || !start_time || !end_time) {
-        return reply
-          .code(400)
-          .send({
-            error: "Missing required fields: name, start_time, end_time",
-          });
+        return reply.code(400).send({
+          error: "Missing required fields: name, start_time, end_time",
+        });
       }
 
       try {
@@ -52,12 +50,10 @@ async function masterTimeRoutes(fastify: FastifyInstance) {
         return reply.code(201).send(data);
       } catch (err: any) {
         fastify.log.error(err);
-        return reply
-          .code(500)
-          .send({
-            error: "Failed to create master time",
-            details: err.message,
-          });
+        return reply.code(500).send({
+          error: "Failed to create master time",
+          details: err.message,
+        });
       }
     },
   );
@@ -84,12 +80,10 @@ async function masterTimeRoutes(fastify: FastifyInstance) {
         return data;
       } catch (err: any) {
         fastify.log.error(err);
-        return reply
-          .code(500)
-          .send({
-            error: "Failed to update master time",
-            details: err.message,
-          });
+        return reply.code(500).send({
+          error: "Failed to update master time",
+          details: err.message,
+        });
       }
     },
   );
@@ -110,12 +104,10 @@ async function masterTimeRoutes(fastify: FastifyInstance) {
         return reply.code(204).send();
       } catch (err: any) {
         fastify.log.error(err);
-        return reply
-          .code(500)
-          .send({
-            error: "Failed to delete master time",
-            details: err.message,
-          });
+        return reply.code(500).send({
+          error: "Failed to delete master time",
+          details: err.message,
+        });
       }
     },
   );

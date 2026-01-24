@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
-import { supabase } from "../lib/supabase";
-import { processAttendanceLogs } from "../services/logProcessor";
+import { supabase } from "../lib/supabase.js";
+import { processAttendanceLogs } from "../services/logProcessor.js";
 import dayjs from "dayjs";
 
 async function logRoutes(fastify: FastifyInstance) {
@@ -157,9 +157,9 @@ async function logRoutes(fastify: FastifyInstance) {
       // The processor expects Raw logs.
 
       const { processAttendanceLogs } =
-        await import("../services/logProcessor");
+        await import("../services/logProcessor.js");
       const { calculateAttendanceStats } =
-        await import("../services/statisticsProcessor");
+        await import("../services/statisticsProcessor.js");
 
       // To get accurate "In/Out" status for MTD summary, we must process them first.
       const mtdProcessed = processAttendanceLogs(resMtd.data as any[]);

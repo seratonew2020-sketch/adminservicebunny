@@ -178,7 +178,7 @@ export const fetchAllEmployees = async () => {
 // ==========================================================
 // Custom Backend API (Node.js/Fastify) for Master Times
 // ==========================================================
-const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000/api'
+const backendUrl = import.meta.env.VITE_BACKEND_URL || '/api' // Use proxy path
 const backendClient = axios.create({
   baseURL: backendUrl,
   timeout: 10000,
