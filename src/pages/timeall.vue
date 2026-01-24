@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { fetchAttendanceLogs } from '@/services/logs'
 import dayjs from 'dayjs'
 import 'dayjs/locale/th'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
@@ -23,19 +23,18 @@ const formatDate = (dateString) => {
 const loadData = async () => {
   loading.value = true
   try {
-      const response = await axios.get('/api/logs', {
-        params: {
-          startDate: startDate.value,
-          endDate: endDate.value,
-          empId: searchId.value,
-          name: searchName.value
-        }
-      })
-      report.value = response.data
+    const data = await fetchAttendanceLogs({
+      startDate: startDate.value,
+      endDate: endDate.value,
+      empId: searchId.value,
+      name: searchName.value
+    })
+    report.value = data
   } catch(e) {
-      console.error(e)
+    console.error('Failed to load logs:', e)
+    // alert('ไม่สามารถดึงข้อมูลได้: ' + e.message)
   } finally {
-      loading.value = false
+    loading.value = false
   }
 }
 
@@ -71,30 +70,41 @@ onMounted(() => {
 
     <v-data-table
       :headers="[
-        { title: 'รหัสพนักงาน', key: 'empId' },
-        { title: 'เวลา', key: 'time' },
-        { title: 'สถานะ', key: 'status' },
-        { title: 'รายละเอียด', key: 'statusDetail' },
-        { title: '', key: 'device' }
+        { title: 'รหัสพนักงาน', key: 'employee_id' },
+        { title: 'ชื่อ-นามสกุล', key: 'name' },
+        { title: 'แผนก', key: 'department' },
+        { title: 'เวลา', key: 'timestamp' },
+        { title: 'สถานะ', key: 'type' },
+        { title: 'รูปภาพ', key: 'image' }
       ]"
       :items="report"
       :loading="loading"
     >
-      <template v-slot:item.time="{ item }">
-        {{ formatDate(item.time) }}
+      <template v-slot:item.timestamp="{ item }">
+        {{ formatDate(item.timestamp) }}
       </template>
-      <template v-slot:item.status="{ item }">
+      <template v-slot:item.type="{ item }">
         <v-chip
-          :color="item.status === 'เข้างาน' ? 'success' : item.status === 'ออกงาน' ? 'info' : 'warning'"
+          :color="item.type === 'เข้างาน' || item.type === 'check_in' ? 'success' : 'info'"
           size="small"
         >
-          {{ item.status }}
+          {{ item.type === 'check_in' ? 'เข้างาน' : (item.type === 'check_out' ? 'ออกงาน' : item.type) }}
         </v-chip>
+      </template>
+      <template v-slot:item.image="{ item }">
+        <v-img
+          v-if="item.image"
+          :src="item.image"
+          width="50"
+          height="50"
+          cover
+          class="rounded"
+        ></v-img>
+        <span v-else>-</span>
       </template>
     </v-data-table>
   </v-container>
 </template>
-
 
 <style scoped>
 /* Empty style to ensure parser behaves */

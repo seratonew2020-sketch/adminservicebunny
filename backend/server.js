@@ -25,6 +25,11 @@ const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_ANON_KEY;
 
+if (!supabaseUrl || !supabaseKey) {
+  console.error("❌ Error: Missing SUPABASE_URL or SUPABASE_KEY in .env file");
+  process.exit(1);
+}
+
 // 3. Register CORS (อนุญาตให้ Frontend เข้าถึง)
 fastify.register(cors, {
   origin: true,
@@ -43,10 +48,7 @@ fastify.get("/api", async () => {
 
 // Route สำหรับรายงาน PDF (Legacy/Direct)
 fastify.get("/report/pdf", async (request, reply) => {
-  const { startDate, endDate } = request.query as {
-    startDate: string;
-    endDate: string;
-  };
+  const { startDate, endDate } = request.query;
 
   if (!startDate || !endDate) {
     return reply.code(400).send({ error: "Missing startDate or endDate" });
@@ -76,9 +78,9 @@ fastify.get("/", async () => {
 // 5. Start Server
 const start = async () => {
   try {
-    const port = 3000;
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
     await fastify.listen({ port, host: "0.0.0.0" });
-    console.log(`✅ Backend running at http://localhost:${port}`);
+    console.log(`Server running at http://localhost:${port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import dayjs from "dayjs";
 import {
   fetchDailySummary,
   fetchReportData,
@@ -10,7 +11,6 @@ async function reportRoutes(fastify: FastifyInstance) {
     schema: {
       querystring: {
         type: "object",
-        required: ["date"],
         properties: {
           date: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
         },
@@ -20,17 +20,19 @@ async function reportRoutes(fastify: FastifyInstance) {
 
   // GET /api/daily-summary
   fastify.get("/daily-summary", summarySchema, async (request, reply) => {
-    const { date } = request.query as { date: string };
-
-    // Debug log
-    console.log("Received Date:", date);
-
     try {
+      const { date: queryDate } = request.query as { date?: string };
+      const date = queryDate || dayjs().format("YYYY-MM-DD");
+
+      console.log("Received Date:", date);
       const report = await fetchDailySummary(date);
       return reply.send(report);
-    } catch (err) {
+    } catch (err: any) {
       fastify.log.error(err);
-      return reply.code(500).send({ error: "Internal Server Error" });
+      return reply.code(500).send({
+        error: "Internal Server Error",
+        details: err.message,
+      });
     }
   });
 

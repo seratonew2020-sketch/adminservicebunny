@@ -47,33 +47,41 @@ export const calculateDailyStatus = (
   logs: any[],
   shift: any,
 ) => {
-  // Logic หาเวลาเข้างานครั้งแรก
+  // แก้ไข: ตรวจสอบ logs ให้ยืดหยุ่นขึ้น (รองรับทั้ง I, CheckIn หรือตัวพิมพ์เล็ก)
   const checkInLog = logs.find(
-    (l: any) => l.io_type === "I" || l.io_type === "CheckIn",
+    (l: any) =>
+      l.io_type?.toUpperCase() === "I" ||
+      l.io_type?.toLowerCase() === "checkin" ||
+      l.io_type === "Check-In",
   );
 
-  if (!checkInLog) return { status: "absent", lateMinutes: 0 };
-
-  const checkInTime = new Date(checkInLog.timestamp);
-  // สมมติเวลาเข้างานจาก Shift (ควรดึงจาก DB จริง)
-  const shiftStart = new Date(checkInTime);
-  const [h, m] = shift.start_time.split(":");
-  shiftStart.setHours(parseInt(h), parseInt(m), 0);
-
-  let status = "present";
-  let lateMinutes = 0;
-
-  if (checkInTime > shiftStart) {
-    const diffMs = checkInTime.getTime() - shiftStart.getTime();
-    lateMinutes = Math.floor(diffMs / 60000); // แปลง ms เป็นนาที
-
-    // ถ้าสายเกินเกณฑ์ที่กำหนด
-    if (lateMinutes > shift.late_threshold_minutes) {
-      status = "late";
-    }
+  // ถ้าไม่มี log หรือไม่มีข้อมูลกะงาน (shift) ให้คืนค่า absent ทันที
+  if (!checkInLog || !shift || !shift.start_time) {
+    return { status: "absent", lateMinutes: 0, checkInTime: "-" };
   }
 
-  return { status, lateMinutes, checkInTime: checkInLog.timestamp };
+  try {
+    const checkInTime = new Date(checkInLog.timestamp);
+    const shiftStart = new Date(checkInTime);
+    const [h, m] = shift.start_time.split(":");
+    shiftStart.setHours(parseInt(h), parseInt(m), 0);
+
+    let status = "present";
+    let lateMinutes = 0;
+
+    if (checkInTime > shiftStart) {
+      const diffMs = checkInTime.getTime() - shiftStart.getTime();
+      lateMinutes = Math.floor(diffMs / 60000);
+      if (lateMinutes > (shift.late_threshold_minutes || 15)) {
+        status = "late";
+      }
+    }
+
+    return { status, lateMinutes, checkInTime: checkInLog.timestamp };
+  } catch (err) {
+    console.error("Calculation Error:", err);
+    return { status: "error", lateMinutes: 0 };
+  }
 };
 
 export const fetchDailySummary = async (date: string) => {

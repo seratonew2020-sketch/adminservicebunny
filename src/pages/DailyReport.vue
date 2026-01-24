@@ -56,7 +56,7 @@
 
   <script setup>
   import { ref, onMounted } from 'vue';
-  import axios from 'axios'; // หรือใช้ instance ที่ config แล้ว
+  import api from '@/services/api';
   import dayjs from 'dayjs';
 
   const loading = ref(false);
@@ -74,18 +74,18 @@
   const fetchReport = async () => {
     loading.value = true;
     try {
-      // เรียก API Backend ที่เราทำไว้
       console.log('Fetching report for date:', selectedDate.value);
       if (!selectedDate.value) {
           console.error("Date is empty!");
           return;
       }
-      const response = await axios.get('/api/daily-summary', {
+      const response = await api.get('/daily-summary', {
         params: { date: selectedDate.value }
       });
+      console.log('Report Data:', response.data);
       reportData.value = response.data;
     } catch (error) {
-      console.error('Error fetching report:', error);
+      console.error('Error fetching report:', error.response?.data || error.message);
     } finally {
       loading.value = false;
     }

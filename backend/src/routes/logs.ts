@@ -7,81 +7,25 @@ async function logRoutes(fastify: FastifyInstance) {
   // สร้าง API endpoint: GET http://localhost:3000/api/logs
   fastify.get("/logs", async (request, reply) => {
     try {
-      const { startDate, endDate, empId, name } = request.query as {
-        startDate?: string;
-        endDate?: string;
-        empId?: string;
-        name?: string;
-      };
+      // User Request: Fetch REAL data from attendance_logs, remove ALL conditions/filters.
+      // Return raw data directly.
 
-      let query = supabase
+      const { data, error } = await supabase
         .from("attendance_logs")
         .select("*")
         .order("timestamp", { ascending: false });
-
-      if (startDate) {
-        query = query.gte("timestamp", `${startDate}T00:00:00`);
-      }
-      if (endDate) {
-        query = query.lte("timestamp", `${endDate}T23:59:59`);
-      }
-      if (empId) {
-        query = query.ilike("employee_id", `%${empId}%`);
-      }
-
-      // name filtering (requires manual step since join is missing)
-      let validEmpIds: string[] | null = null;
-      if (name) {
-        const { data: emps } = await supabase
-          .from("employees")
-          .select("employee_id")
-          .or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%`);
-
-        if (emps && emps.length > 0) {
-          validEmpIds = emps.map((e) => e.employee_id);
-          query = query.in("employee_id", validEmpIds);
-        } else if (name) {
-          return []; // Name searched but no overlap found
-        }
-      }
-
-      const { data, error } = await query.limit(3000);
 
       if (error) {
         console.error("❌ Supabase Query Error:", error);
         throw error;
       }
 
-      if (!data) return [];
-
-      // Fetch employees for display names (Join alternative)
-      const { data: allEmps } = await supabase
-        .from("employees")
-        .select("employee_id, first_name, last_name");
-
-      const empMap: Record<string, any> = {};
-      allEmps?.forEach((e) => {
-        empMap[e.employee_id] = e;
-      });
-
-      const dataWithNames = data.map((log) => ({
-        ...log,
-        employees: empMap[log.employee_id] || {
-          first_name: log.employee_id,
-          last_name: "",
-        },
-      }));
-
-      // 2. ใช้ Logic การจัดรูปแบบที่ซับซ้อน (Business Logic Layer)
-      const formattedData = processAttendanceLogs(dataWithNames as any[]);
-
-      // 3. ส่งกลับไป (Response Layer)
-      return formattedData;
+      return data || [];
     } catch (err: any) {
       console.error("❌ Route Logs Error:", err);
       fastify.log.error(err);
       return reply.code(500).send({
-        error: "ดึงข้อมูลไม่สำเร็จ",
+        error: "Failed to fetch logs",
         details: err.message,
       });
     }
