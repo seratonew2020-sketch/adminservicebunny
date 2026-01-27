@@ -11,16 +11,17 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
+    "test": "vitest",
     "test:e2e": "playwright test",
-    "dev:backend": "cd backend && npm run dev",
+    "dev:backend": "nodemon server.js",
     "dev:all": "npm-run-all2 --parallel dev dev:backend"
-
   },
   "dependencies": {
+    "@dotenvx/dotenvx": "^1.52.0",
     "@fastify/cors": "^11.2.0",
     "@intlify/unplugin-vue-i18n": "^11.0.3",
     "@mdi/font": "^7.4.47",
-    "@supabase/supabase-js": "^2.91.0",
+    "@supabase/supabase-js": "^2.91.1",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "chart.js": "^4.5.1",
@@ -32,15 +33,16 @@
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",
     "mysql2": "^3.16.1",
+    "npm-run-all2": "^8.0.0",
     "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "sequelize": "^6.37.7",
     "vue": "^3.5.26",
     "vue-chartjs": "^5.3.3",
     "vue-i18n": "^11.2.8",
     "vue-router": "^4.6.4",
     "vuetify": "^3.11.7",
-    "xlsx": "^0.18.5",
-    "npm-run-all2": "^8.0.0"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

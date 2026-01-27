@@ -1,13 +1,12 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "vue-router";
+
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref(null);
   const session = ref(null);
   const loading = ref(false);
-  const router = useRouter();
 
   const fetchSession = async () => {
     loading.value = true;
