@@ -20,16 +20,21 @@ fastify.register(cors, {
 });
 
 // Register Routes
-fastify.register(logRoutes, { prefix: "/api" });
-fastify.register(userRoutes, { prefix: "/api" });
-fastify.register(reportRoutes, { prefix: "/api" });
-fastify.register(masterTimeRoutes, { prefix: "/api/master-times" });
-fastify.register(leaveRoutes, { prefix: "/api" });
-fastify.register(employeeShiftRoutes, { prefix: "/api/employee-shifts" });
+// Note: In Vercel, /api/* is already routed to api/index.ts, so we don't add /api prefix
+// For local dev, we keep the /api prefix for consistency
+const isVercel = process.env.VERCEL === "1";
+const apiPrefix = isVercel ? "" : "/api";
+
+fastify.register(logRoutes, { prefix: apiPrefix });
+fastify.register(userRoutes, { prefix: apiPrefix });
+fastify.register(reportRoutes, { prefix: apiPrefix });
+fastify.register(masterTimeRoutes, { prefix: isVercel ? "/master-times" : "/api/master-times" });
+fastify.register(leaveRoutes, { prefix: apiPrefix });
+fastify.register(employeeShiftRoutes, { prefix: isVercel ? "/employee-shifts" : "/api/employee-shifts" });
 
 // Health Checks
 fastify.get("/", async () => ({ status: "OK", message: "WorkTime Backend 🚀" }));
-fastify.get("/api", async () => ({ status: "OK", message: "API Gateway is active 🛠️" }));
+fastify.get(apiPrefix || "/", async () => ({ status: "OK", message: "API Gateway is active 🛠️" }));
 
 // Handle Service Worker requests (silence 404s)
 fastify.get("/sw.js", async (request, reply) => {
@@ -53,6 +58,9 @@ const start = async () => {
 if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
   start();
 }
+
+// Export app สำหรับ Vercel
+export const app = fastify;
 
 export default async (req, res) => {
   await fastify.ready();

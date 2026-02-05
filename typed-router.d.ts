@@ -51,6 +51,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/employee-shift': RouteRecordInfo<
+      '/employee-shift',
+      '/employee-shift',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/employees': RouteRecordInfo<
       '/employees',
       '/employees',
@@ -75,6 +82,13 @@ declare module 'vue-router/auto-routes' {
     '/login': RouteRecordInfo<
       '/login',
       '/login',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/master-times': RouteRecordInfo<
+      '/master-times',
+      '/master-times',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -110,6 +124,13 @@ declare module 'vue-router/auto-routes' {
     '/timeall': RouteRecordInfo<
       '/timeall',
       '/timeall',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/view-ot': RouteRecordInfo<
+      '/view-ot',
+      '/view-ot',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -151,6 +172,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/employee-shift.vue': {
+      routes:
+        | '/employee-shift'
+      views:
+        | never
+    }
     'src/pages/employees.vue': {
       routes:
         | '/employees'
@@ -172,6 +199,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/login.vue': {
       routes:
         | '/login'
+      views:
+        | never
+    }
+    'src/pages/master-times.vue': {
+      routes:
+        | '/master-times'
       views:
         | never
     }
@@ -202,6 +235,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/timeall.vue': {
       routes:
         | '/timeall'
+      views:
+        | never
+    }
+    'src/pages/view-ot.vue': {
+      routes:
+        | '/view-ot'
       views:
         | never
     }
