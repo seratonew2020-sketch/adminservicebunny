@@ -1,5 +1,9 @@
 import { fileURLToPath, URL } from "node:url";
 import { dirname, resolve } from "node:path";
+import dns from "node:dns";
+
+// Force localhost to resolve to IPv4 first (fixes some proxy/HMR issues)
+dns.setDefaultResultOrder('verbatim');
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -43,10 +47,14 @@ export default defineConfig({
     },
   },
   server: {
+    strictPort: true,
+    port: 5173,
+    host: '0.0.0.0', // Listen on all interfaces
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://127.0.0.1:5000', // Use 127.0.0.1 to avoid localhost IPv6 issues
         changeOrigin: true,
+        secure: false,
       },
     },
   },

@@ -1,13 +1,50 @@
 <script setup>
 import { useTheme } from 'vuetify'
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { fetchNotificationPreferences, updateNotificationPreferences } from '@/services/api'
 
 const theme = useTheme()
+const authStore = useAuthStore()
 
-const notifications = ref(true)
-const emailAlerts = ref(false)
+const notifications = ref(true) // Maps to in_app_enabled
+const emailAlerts = ref(true)   // Maps to email_enabled
 const autoClockOut = ref(true)
 const themeMode = ref('system')
+const loading = ref(false)
+
+const loadPreferences = async () => {
+  if (!authStore.user?.id) return
+  loading.value = true
+  try {
+    const prefs = await fetchNotificationPreferences(authStore.user.id)
+    notifications.value = prefs.in_app_enabled
+    emailAlerts.value = prefs.email_enabled
+  } finally {
+    loading.value = false
+  }
+}
+
+const savePreferences = async () => {
+  if (!authStore.user?.id) return
+  try {
+    await updateNotificationPreferences(authStore.user.id, {
+      in_app_enabled: notifications.value,
+      email_enabled: emailAlerts.value
+    })
+  } catch (error) {
+    console.error('Failed to save preferences', error)
+  }
+}
+
+// Watch for changes and auto-save (debounce could be added)
+watch([notifications, emailAlerts], () => {
+  savePreferences()
+})
+
+onMounted(() => {
+  loadPreferences()
+})
 </script>
 
 <template>
@@ -108,32 +145,6 @@ const themeMode = ref('system')
         </v-col>
 
         <v-col cols="12" lg="4">
-           <!-- Plan Info -->
-           <v-card flat rounded="xl" color="primary" class="pa-8 mb-6 position-relative overflow-hidden">
-              <!-- Decorative element -->
-              <div class="position-absolute" style="top: -20px; right: -20px; opacity: 0.1;">
-                 <v-icon icon="mdi-shield-crown" size="160" color="white"></v-icon>
-              </div>
-
-              <div class="d-flex align-start justify-space-between mb-6 position-relative">
-                 <v-avatar color="white" variant="flat" size="56" class="elevation-4">
-                    <v-icon icon="mdi-diamond-stone" color="primary" size="32"></v-icon>
-                 </v-avatar>
-                 <v-chip color="white" variant="flat" size="small" class="text-primary font-weight-bold px-4">PREMIUM</v-chip>
-              </div>
-
-              <h3 class="text-h5 font-weight-bold mb-2 position-relative">Enterprise Plan</h3>
-              <p class="text-body-2 mb-8 position-relative opacity-90">All premium features unlocked including AI-powered attendance tracking.</p>
-
-              <div class="d-flex justify-space-between text-caption mb-2 opacity-100 font-weight-bold position-relative">
-                 <span>Data usage</span>
-                 <span>85%</span>
-              </div>
-              <v-progress-linear model-value="85" color="white" height="8" rounded class="position-relative mb-8"></v-progress-linear>
-
-              <v-btn block variant="flat" color="white" rounded="lg" class="text-primary font-weight-bold text-capitalize">Manage Subscription</v-btn>
-           </v-card>
-
            <!-- Support Card -->
            <v-card flat rounded="xl" class="border pa-6 card-shadow" :class="theme.global.current.value.dark ? 'bg-surface-dark' : 'bg-white'">
               <div class="d-flex align-center gap-4 mb-4">

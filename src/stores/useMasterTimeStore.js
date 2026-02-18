@@ -5,7 +5,7 @@ import {
   createMasterTime,
   updateMasterTime,
   deleteMasterTime,
-} from "@/services/api.ts";
+} from "@/services/api";
 
 export const useMasterTimeStore = defineStore("masterTime", () => {
   const masterTimes = ref([]);

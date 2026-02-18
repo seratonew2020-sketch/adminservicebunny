@@ -5,8 +5,12 @@ import logRoutes from "./routes/logs.js";
 import userRoutes from "./routes/users.js";
 import reportRoutes from "./routes/report.js";
 import masterTimeRoutes from "./routes/masterTimes.js";
-import leaveRoutes from "./routes/leaves.js";
+import leaveRoutes from "./backend/src/routes/leaves.js";
 import employeeShiftRoutes from "./routes/employeeShifts.js";
+import holidayRoutes from "./backend/src/routes/holidays.js";
+import employeeRoutes from "./backend/src/routes/employees.js";
+import departmentsRoutes from "./backend/src/routes/departments.js";
+import { startCronJobs } from "./backend/src/jobs/reminder.js";
 import { fetchReportData, generatePDFReport } from "./services/reportService.js";
 
 dotenv.config();
@@ -31,6 +35,9 @@ fastify.register(reportRoutes, { prefix: apiPrefix });
 fastify.register(masterTimeRoutes, { prefix: isVercel ? "/master-times" : "/api/master-times" });
 fastify.register(leaveRoutes, { prefix: apiPrefix });
 fastify.register(employeeShiftRoutes, { prefix: isVercel ? "/employee-shifts" : "/api/employee-shifts" });
+fastify.register(holidayRoutes, { prefix: apiPrefix });
+fastify.register(employeeRoutes, { prefix: apiPrefix });
+fastify.register(departmentsRoutes, { prefix: apiPrefix });
 
 // Health Checks
 fastify.get("/", async () => ({ status: "OK", message: "WorkTime Backend 🚀" }));
@@ -43,6 +50,7 @@ fastify.get("/sw.js", async (request, reply) => {
 
 // ฟังก์ชันสำหรับ Start Server (รันเฉพาะตอนไม่ได้อยู่บน Vercel)
 const start = async () => {
+  startCronJobs();
   try {
     const port = Number(process.env.PORT) || 5000;
     const host = process.env.BACKEND_HOST || "0.0.0.0";
