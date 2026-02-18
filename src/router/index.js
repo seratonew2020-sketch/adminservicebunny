@@ -22,11 +22,18 @@ router.beforeEach(async (to, from, next) => {
 
   const isAuthenticated = !!authStore.user;
   const isLoginPage = to.path === "/login";
+  const isAdmin = authStore.isAdmin;
 
   if (!isAuthenticated && !isLoginPage) {
     next("/login");
   } else if (isAuthenticated && isLoginPage) {
-    next("/");
+    if (isAdmin) next("/admin/dashboard");
+    else next("/employee/profile");
+  } else if (isAuthenticated && to.path === '/') {
+    if (isAdmin) next("/admin/dashboard");
+    else next("/employee/profile");
+  } else if (to.path.startsWith('/admin') && !isAdmin) {
+    next("/employee/profile");
   } else {
     next();
   }

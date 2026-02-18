@@ -1,5 +1,8 @@
 import { FastifyInstance } from "fastify";
 import { supabase } from "../lib/supabase.js";
+import { processAttendanceLogs } from "../services/logProcessor.js";
+import { promises as fs } from "fs";
+import { resolve } from "path";
 
 interface MasterTimeBody {
   name: string;
@@ -23,6 +26,151 @@ async function masterTimeRoutes(fastify: FastifyInstance) {
       return reply
         .code(500)
         .send({ error: "Failed to fetch master times", details: err.message });
+    }
+  });
+
+  // GET /api/master-times/processed-attendance
+  fastify.get("/master-times/processed-attendance", async (request, reply) => {
+    try {
+      const { start_date, end_date, limit = 1000 } = request.query as {
+        start_date?: string;
+        end_date?: string;
+        limit?: number;
+      };
+
+      let query = supabase
+        .from("attendance_logs")
+        .select("*")
+        .order("timestamp", { ascending: false })
+        .limit(Number(limit));
+
+      if (start_date) query = query.gte("timestamp", `${start_date}T00:00:00`);
+      if (end_date) query = query.lte("timestamp", `${end_date}T23:59:59`);
+
+      const { data, error } = await query;
+      if (error) {
+        // Fallback: read local CSV if Supabase table is missing in dev
+        try {
+          // Try multiple locations for CSV
+          const candidates = [
+            resolve(process.cwd(), "attendance_logs_rows.csv"),
+            resolve(process.cwd(), "../attendance_logs_rows.csv"),
+          ];
+          let raw = "";
+          for (const p of candidates) {
+            try {
+              raw = await fs.readFile(p, "utf-8");
+              break;
+            } catch {}
+          }
+          if (!raw) {
+            return [];
+          }
+          const lines = raw.split("\n").filter((l) => l.trim().length > 0);
+          // First line is header
+          const body = lines.slice(1);
+          const logs = [];
+          for (let i = 0; i < body.length; i++) {
+            const line = body[i];
+            // Simple CSV parse for known schema: id,attendance_id,timestamp,action,location,created_at,employee_id
+            // Handle quoted values and commas
+            const cols = [];
+            let current = "";
+            let inQuotes = false;
+            for (let c of line) {
+              if (c === '"') {
+                inQuotes = !inQuotes;
+                continue;
+              }
+              if (c === "," && !inQuotes) {
+                cols.push(current);
+                current = "";
+              } else {
+                current += c;
+              }
+            }
+            cols.push(current);
+            const ts = cols[2];
+            const action = cols[3];
+            const location = cols[4];
+            const empId = cols[6];
+            if (!ts || !empId) continue;
+            const dateOnly = ts.split("T")[0];
+            if (start_date && dateOnly < start_date) continue;
+            if (end_date && dateOnly > end_date) continue;
+            logs.push({
+              id: i + 1,
+              employee_id: empId,
+              timestamp: ts,
+              io_type: action,
+              source: location,
+            } as any);
+          }
+          const processed = processAttendanceLogs(logs).slice(0, Number(limit));
+          return processed;
+        } catch (fallbackErr) {
+          return [];
+        }
+      }
+
+      const processed = processAttendanceLogs(data || []);
+      return processed;
+    } catch (err: any) {
+      // Try fallback on thrown exception too
+      try {
+        const candidates = [
+          resolve(process.cwd(), "attendance_logs_rows.csv"),
+          resolve(process.cwd(), "../attendance_logs_rows.csv"),
+        ];
+        let raw = "";
+        for (const p of candidates) {
+          try {
+            raw = await fs.readFile(p, "utf-8");
+            break;
+          } catch {}
+        }
+        if (!raw) throw err;
+        const lines = raw.split("\n").filter((l) => l.trim().length > 0);
+        const body = lines.slice(1);
+        const logs = [];
+        for (let i = 0; i < body.length; i++) {
+          const line = body[i];
+          const cols = [];
+          let current = "";
+          let inQuotes = false;
+          for (let c of line) {
+            if (c === '"') {
+              inQuotes = !inQuotes;
+              continue;
+            }
+            if (c === "," && !inQuotes) {
+              cols.push(current);
+              current = "";
+            } else {
+              current += c;
+            }
+          }
+        cols.push(current);
+        const ts = cols[2];
+        const action = cols[3];
+        const location = cols[4];
+        const empId = cols[6];
+        if (!ts || !empId) continue;
+        const dateOnly = ts.split("T")[0];
+        const { start_date, end_date, limit = 1000 } = request.query as any;
+        if (start_date && dateOnly < start_date) continue;
+        if (end_date && dateOnly > end_date) continue;
+        logs.push({ id: i + 1, employee_id: empId, timestamp: ts, io_type: action, source: location } as any);
+        }
+        const { limit = 1000 } = request.query as any;
+        const processed = processAttendanceLogs(logs).slice(0, Number(limit));
+        return processed;
+      } catch (fallbackErr) {
+        fastify.log.error(err);
+        return reply
+          .code(500)
+          .send({ error: "Failed to fetch processed attendance", details: err.message });
+      }
     }
   });
 

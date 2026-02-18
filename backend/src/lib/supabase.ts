@@ -4,7 +4,12 @@ import { resolve } from "path";
 import { readFileSync, existsSync } from "fs";
 
 // FORCE Load .env from backend root to ensure Service Role Key is used
-const envPath = resolve(process.cwd(), ".env");
+let envPath = resolve(process.cwd(), ".env");
+if (!existsSync(envPath)) {
+  // Try parent directory
+  envPath = resolve(process.cwd(), "../.env");
+}
+
 if (existsSync(envPath)) {
   const envConfig = dotenv.parse(readFileSync(envPath));
   for (const k in envConfig) {
@@ -32,10 +37,37 @@ try {
 }
 console.log("---------------------------");
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
-  },
-});
+let client;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error("❌ Supabase configuration missing! URL or Key is empty.");
+  // Create a dummy client to prevent crash at import time
+  // Cast to any to bypass TS checks for now or define a partial interface
+  client = {
+    from: () => ({
+      select: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (Missing Env Vars)" } }),
+      insert: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (Missing Env Vars)" } }),
+      update: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (Missing Env Vars)" } }),
+      delete: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (Missing Env Vars)" } }),
+      upsert: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (Missing Env Vars)" } }),
+    }),
+    rpc: () => Promise.resolve({ data: null, error: { message: "Supabase not configured (Missing Env Vars)" } }),
+    auth: {
+      admin: {
+        createUser: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+        deleteUser: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+        listUsers: () => Promise.resolve({ data: null, error: { message: "Supabase not configured" } }),
+      }
+    }
+  } as any;
+} else {
+  client = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+export const supabase = client;

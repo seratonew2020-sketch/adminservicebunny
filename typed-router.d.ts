@@ -37,6 +37,41 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/admin/audit-logs': RouteRecordInfo<
+      '/admin/audit-logs',
+      '/admin/audit-logs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/dashboard': RouteRecordInfo<
+      '/admin/dashboard',
+      '/admin/dashboard',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/data-management': RouteRecordInfo<
+      '/admin/data-management',
+      '/admin/data-management',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/employees': RouteRecordInfo<
+      '/admin/employees',
+      '/admin/employees',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/admin/reports': RouteRecordInfo<
+      '/admin/reports',
+      '/admin/reports',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/attendance/[id]': RouteRecordInfo<
       '/attendance/[id]',
       '/attendance/:id',
@@ -47,6 +82,41 @@ declare module 'vue-router/auto-routes' {
     '/DailyReport': RouteRecordInfo<
       '/DailyReport',
       '/DailyReport',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/employee/edit-profile': RouteRecordInfo<
+      '/employee/edit-profile',
+      '/employee/edit-profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/employee/leave-schedule': RouteRecordInfo<
+      '/employee/leave-schedule',
+      '/employee/leave-schedule',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/employee/profile': RouteRecordInfo<
+      '/employee/profile',
+      '/employee/profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/employee-leaves-table': RouteRecordInfo<
+      '/employee-leaves-table',
+      '/employee-leaves-table',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/employee-shift': RouteRecordInfo<
+      '/employee-shift',
+      '/employee-shift',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -65,6 +135,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/holidays': RouteRecordInfo<
+      '/holidays',
+      '/holidays',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/HomeView': RouteRecordInfo<
       '/HomeView',
       '/HomeView',
@@ -72,9 +149,30 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/leaves/approvals': RouteRecordInfo<
+      '/leaves/approvals',
+      '/leaves/approvals',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/leaves/request': RouteRecordInfo<
+      '/leaves/request',
+      '/leaves/request',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/login': RouteRecordInfo<
       '/login',
       '/login',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/master-times': RouteRecordInfo<
+      '/master-times',
+      '/master-times',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -114,6 +212,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/view-ot': RouteRecordInfo<
+      '/view-ot',
+      '/view-ot',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -139,6 +244,36 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/admin/audit-logs.vue': {
+      routes:
+        | '/admin/audit-logs'
+      views:
+        | never
+    }
+    'src/pages/admin/dashboard.vue': {
+      routes:
+        | '/admin/dashboard'
+      views:
+        | never
+    }
+    'src/pages/admin/data-management.vue': {
+      routes:
+        | '/admin/data-management'
+      views:
+        | never
+    }
+    'src/pages/admin/employees.vue': {
+      routes:
+        | '/admin/employees'
+      views:
+        | never
+    }
+    'src/pages/admin/reports.vue': {
+      routes:
+        | '/admin/reports'
+      views:
+        | never
+    }
     'src/pages/attendance/[id].vue': {
       routes:
         | '/attendance/[id]'
@@ -148,6 +283,36 @@ declare module 'vue-router/auto-routes' {
     'src/pages/DailyReport.vue': {
       routes:
         | '/DailyReport'
+      views:
+        | never
+    }
+    'src/pages/employee/edit-profile.vue': {
+      routes:
+        | '/employee/edit-profile'
+      views:
+        | never
+    }
+    'src/pages/employee/leave-schedule.vue': {
+      routes:
+        | '/employee/leave-schedule'
+      views:
+        | never
+    }
+    'src/pages/employee/profile.vue': {
+      routes:
+        | '/employee/profile'
+      views:
+        | never
+    }
+    'src/pages/employee-leaves-table.vue': {
+      routes:
+        | '/employee-leaves-table'
+      views:
+        | never
+    }
+    'src/pages/employee-shift.vue': {
+      routes:
+        | '/employee-shift'
       views:
         | never
     }
@@ -163,15 +328,39 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/holidays.vue': {
+      routes:
+        | '/holidays'
+      views:
+        | never
+    }
     'src/pages/HomeView.vue': {
       routes:
         | '/HomeView'
       views:
         | never
     }
+    'src/pages/leaves/approvals.vue': {
+      routes:
+        | '/leaves/approvals'
+      views:
+        | never
+    }
+    'src/pages/leaves/request.vue': {
+      routes:
+        | '/leaves/request'
+      views:
+        | never
+    }
     'src/pages/login.vue': {
       routes:
         | '/login'
+      views:
+        | never
+    }
+    'src/pages/master-times.vue': {
+      routes:
+        | '/master-times'
       views:
         | never
     }
@@ -202,6 +391,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/timeall.vue': {
       routes:
         | '/timeall'
+      views:
+        | never
+    }
+    'src/pages/view-ot.vue': {
+      routes:
+        | '/view-ot'
       views:
         | never
     }

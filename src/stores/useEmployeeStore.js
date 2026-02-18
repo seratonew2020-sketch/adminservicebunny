@@ -67,7 +67,7 @@ export const useEmployeeStore = defineStore("employee", () => {
     search,
     loadData,
     setPage,
-    addEmployee: async (employee: any) => {
+    addEmployee: async (employee) => {
       try {
         await createEmployee(employee);
         await loadData();
@@ -77,7 +77,7 @@ export const useEmployeeStore = defineStore("employee", () => {
         return false;
       }
     },
-    editEmployee: async (id: string, updates: any) => {
+    editEmployee: async (id, updates) => {
       try {
         await updateEmployee(id, updates);
         await loadData();
@@ -87,7 +87,7 @@ export const useEmployeeStore = defineStore("employee", () => {
         return false;
       }
     },
-    removeEmployee: async (id: string) => {
+    removeEmployee: async (id) => {
       try {
         await deleteEmployee(id);
         await loadData();

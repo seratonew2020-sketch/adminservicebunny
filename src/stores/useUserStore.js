@@ -2,15 +2,8 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import axios from "axios";
 
-export interface User {
-  id: number;
-  employee_code: string;
-  full_name: string;
-  department: string;
-}
-
 export const useUserStore = defineStore("user", () => {
-  const users = ref<User[]>([]);
+  const users = ref([]);
   const loading = ref(false);
 
   const fetchUsers = async () => {

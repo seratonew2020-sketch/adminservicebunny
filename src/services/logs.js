@@ -1,4 +1,10 @@
 import { supabase } from '@/lib/supabase'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 export const fetchAttendanceLogs = async ({ startDate, endDate, empId, name }) => {
   try {
@@ -76,10 +82,9 @@ export const fetchAttendanceLogs = async ({ startDate, endDate, empId, name }) =
 
       if (!isCheckIn) return { status_detail: '', late_minutes: 0, is_late: '' }
 
-      // Parse Log Time (UTC Face Value)
-      const logDate = new Date(logTimeISO)
-      const logH = logDate.getUTCHours()
-      const logM = logDate.getUTCMinutes()
+      const logTimeBkk = dayjs.utc(logTimeISO).tz('Asia/Bangkok')
+      const logH = logTimeBkk.hour()
+      const logM = logTimeBkk.minute()
       const logTotalM = logH * 60 + logM
 
       // Find Closest Shift

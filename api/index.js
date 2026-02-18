@@ -1,6 +1,6 @@
 import { app } from "../backend/src/server.js";
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req, res) {
   await app.ready();
   app.server.emit("request", req, res);
 }

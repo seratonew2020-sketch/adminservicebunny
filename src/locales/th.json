@@ -24,5 +24,11 @@
   "table_actions": "ดำเนินการ",
   "showing_stats": "แสดง 1 ถึง 3 จาก 1,248 พนักงาน",
   "system_status": "สถานะระบบ",
-  "operational": "ปกติ"
+  "operational": "ปกติ",
+  "leave_approvals": "อนุมัติการลา",
+  "holidays": "วันหยุด",
+  "employee_leaves_table": "ตารางวันหยุดพนักงาน",
+  "request_leave": "ขอลาหยุด",
+  "my_schedule": "ตารางงานของฉัน",
+  "my_profile": "โปรไฟล์ของฉัน"
 }

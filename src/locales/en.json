@@ -24,5 +24,11 @@
   "table_actions": "ACTIONS",
   "showing_stats": "Showing 1 to 3 of 1,248 employees",
   "system_status": "System Status",
-  "operational": "Operational"
+  "operational": "Operational",
+  "leave_approvals": "Leave Approvals",
+  "holidays": "Holidays",
+  "employee_leaves_table": "Employee Leaves Table",
+  "request_leave": "Request Leave",
+  "my_schedule": "My Schedule",
+  "my_profile": "My Profile"
 }

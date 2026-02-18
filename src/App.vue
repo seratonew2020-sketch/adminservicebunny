@@ -5,6 +5,7 @@
   import { useAuthStore } from '@/stores/auth'
   import { useRouter, useRoute } from 'vue-router'
   import { storeToRefs } from 'pinia'
+  import NotificationMenu from '@/components/NotificationMenu.vue'
 
   // --- Theme Management ---
   const theme = useTheme()
@@ -12,7 +13,7 @@
   const authStore = useAuthStore()
   const router = useRouter()
   const route = useRoute()
-  const { user } = storeToRefs(authStore)
+  const { user, employee } = storeToRefs(authStore)
   const drawer = ref(true)
 
   // Fetch session on mount
@@ -33,14 +34,34 @@
     router.push('/login')
   }
 
-  const navItems = [
-    { title: 'dashboard', icon: 'mdi-view-dashboard-outline', path: '/' },
-    { title: 'reports', icon: 'mdi-file-chart-outline', path: '/reports' },
-    { title: 'time_report', icon: 'mdi-clock-time-four-outline', path: '/timeall' },
-    { title: 'employees', icon: 'mdi-account-group-outline', path: '/employees' },
-    { title: 'schedule', icon: 'mdi-calendar-clock-outline', path: '/schedule' },
-    { title: 'fingerprint_scan', icon: 'mdi-fingerprint', path: '/fingerprintscan' },
-  ]
+  const navItems = computed(() => {
+    // Check for admin role using the getter from store if available, or fallback
+    const isAdmin = authStore.isAdmin || employee.value?.role === 'admin' || employee.value?.role === 'manager'
+
+    if (isAdmin) {
+      return [
+        { title: 'dashboard', icon: 'mdi-view-dashboard-outline', path: '/admin/dashboard', exact: true },
+        { title: 'reports', icon: 'mdi-file-chart-outline', path: '/admin/reports', exact: true },
+        { title: 'Data Management', icon: 'mdi-database', path: '/admin/data-management', exact: true },
+        { title: 'Audit Logs', icon: 'mdi-history', path: '/admin/audit-logs', exact: true },
+        { title: 'time_report', icon: 'mdi-clock-time-four-outline', path: '/timeall', exact: true },
+        { title: 'employees', icon: 'mdi-account-group-outline', path: '/admin/employees', exact: true },
+        { title: 'schedule', icon: 'mdi-calendar-clock-outline', path: '/schedule', exact: true },
+        { title: 'leave_approvals', icon: 'mdi-check-decagram', path: '/leaves/approvals', exact: true },
+        { title: 'employee_leaves_table', icon: 'mdi-table-large', path: '/employee-leaves-table', exact: true },
+        { title: 'holidays', icon: 'mdi-calendar-star', path: '/holidays', exact: true },
+        { title: 'fingerprint_scan', icon: 'mdi-fingerprint', path: '/fingerprintscan', exact: true },
+      ]
+    } else {
+      return [
+        { title: 'my_profile', icon: 'mdi-account', path: '/employee/profile', exact: true },
+        { title: 'dashboard', icon: 'mdi-view-dashboard-outline', path: '/employee/profile?view=dashboard', exact: true }, // Redirect to profile as dashboard
+        { title: 'request_leave', icon: 'mdi-calendar-plus', path: '/leaves/request', exact: true },
+        { title: 'my_schedule', icon: 'mdi-calendar-clock-outline', path: '/employee/leave-schedule', exact: true },
+        { title: 'holidays', icon: 'mdi-calendar-star', path: '/holidays', exact: true },
+      ]
+    }
+  })
 </script>
 
 <template>
@@ -55,9 +76,8 @@
       <v-navigation-drawer
         v-model="drawer"
         width="280"
-        elevation="0"
+        color="surface"
         class="border-e"
-        :color="theme.global.current.value.dark ? '#111111' : 'white'"
       >
         <!-- Logo Section -->
         <div class="pa-6 d-flex align-center gap-3">
@@ -82,8 +102,10 @@
         <v-list nav class="px-3 py-4">
           <v-list-item
             v-for="item in navItems"
-            :key="item.path"
+            :key="item.title"
+            :value="item.title"
             :to="item.path"
+            :exact="item.exact"
             :prepend-icon="item.icon"
             color="primary"
             rounded="lg"
@@ -101,6 +123,7 @@
             <v-list nav>
               <v-list-item
                 to="/settings"
+                exact
                 prepend-icon="mdi-cog-outline"
                 color="primary"
                 rounded="lg"
@@ -119,7 +142,7 @@
         height="70"
         flat
         class="border-b"
-        :color="theme.global.current.value.dark ? '#111111' : 'white'"
+        color="surface"
       >
         <v-app-bar-nav-icon @click="drawer = !drawer" class="d-lg-none"></v-app-bar-nav-icon>
 
@@ -137,11 +160,8 @@
           <v-btn icon size="small" @click="toggleLanguage" variant="text">
             <v-icon icon="mdi-translate"></v-icon>
           </v-btn>
-          <v-btn icon size="small" variant="text">
-            <v-badge color="error" dot dot-small>
-              <v-icon icon="mdi-bell-outline"></v-icon>
-            </v-badge>
-          </v-btn>
+
+          <NotificationMenu />
         </div>
 
         <v-divider vertical inset class="mx-2"></v-divider>
@@ -172,7 +192,7 @@
       </v-app-bar>
 
       <!-- Content Area -->
-      <v-main class="w-100 h-100 d-flex flex-column" :class="theme.global.current.value.dark ? 'bg-background-dark' : 'bg-background-light'">
+      <v-main class="bg-background">
         <router-view v-slot="{ Component }">
           <v-fade-transition hide-on-leave>
             <component :is="Component" />
@@ -191,26 +211,19 @@
 </template>
 
 <style>
-/* Global Resets/Fonts Override handled mostly by Vuetify, but specific utilities here */
-:root {
-  --primary-color: #1A1A1A;
-}
-
-body {
-  font-family: 'Inter', sans-serif !important;
-}
-
 /* Utilities */
 .gap-2 { gap: 8px; }
 .gap-3 { gap: 12px; }
 .gap-4 { gap: 16px; }
 .leading-tight { line-height: 1.25; }
-.w-100 { width: 100%; }
 
-.text-18 { font-size: 18px; font-variation-settings: 'opsz' 20; }
-.text-20 { font-size: 20px; font-variation-settings: 'opsz' 20; }
-.text-sm { font-size: 0.875rem !important; }
-.text-xs { font-size: 0.75rem !important; }
+/* Line Clamp */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 /* Custom Colors classes mapping if not in Vuetify theme */
 .text-emerald-500 { color: #10b981; }
@@ -235,60 +248,6 @@ body {
 .text-orange-300 { color: #fdba74; }
 .text-orange-800 { color: #9a3412; }
 
-/* Sidebar */
-.sidebar-active {
-    background-color: rgba(19, 91, 236, 0.1);
-    color: #135bec;
-}
-.sidebar-border {
-  border-right: 1px solid rgba(0,0,0,0.08);
-
-}
-.theme--dark .sidebar-border {
-  border-right: 1px solid rgba(255,255,255,0.08);
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #475569;
-}
-.theme--dark .sidebar-item {
-   color: #94a3b8;
-}
-.sidebar-item:hover {
-  background-color: #f1f5f9;
-}
-.theme--dark .sidebar-item:hover {
-  background-color: #1e293b;
-}
-
-.sidebar-item.active {
-   background-color: rgba(19, 91, 236, 0.1);
-   color: #135bec;
-}
-
-/* App Bar */
-.divider-vertical {
-  height: 32px;
-  width: 1px;
-  background-color: #e2e8f0;
-}
-.theme--dark .divider-vertical {
-   background-color: #334155;
-}
-
-.dark-toggle-bg.bg-grey-lighten-4 {
-    background-color: #f1f5f9 !important;
-}
-.theme--dark .dark-toggle-bg {
-    background-color: #1e293b !important;
-}
-
 /* Search */
 .search-input {
   width: 100%;
@@ -299,34 +258,7 @@ body {
   transition: all 0.2s;
 }
 .search-input:focus {
-   box-shadow: 0 0 0 2px #1A1A1A; /* Primary ring */
-}
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-}
-
-.border-light { border: 1px solid #e2e8f0; }
-.border-dark { border: 1px solid #334155; }
-.bg-background-light { background-color: #f7f7f7; }
-.bg-background-dark { background-color: #191919; }
-.bg-dark-surface { background-color: #1e293b; }
-
-/* Buttons */
-.clock-in-btn {
-  background-color: #1A1A1A;
-}
-.clock-in-btn:hover {
-  background-color: #2563eb; /* approximate blue-700 hover */
-}
-.hover-primary:hover {
-   color: #1A1A1A;
-}
-.theme--dark .hover-primary:hover {
-   color: white;
+   box-shadow: 0 0 0 2px rgb(var(--v-theme-primary));
 }
 
 /* Stats Card */
@@ -342,30 +274,4 @@ body {
 .v-data-table {
   background: transparent !important;
 }
-.dot {
-  width: 8px;
-  height: 8px;
-}
-.pagination-btn {
-  width: 32px;
-  height: 32px;
-  color: #64748b;
-  background: white;
-  border-color: #e2e8f0;
-}
-.theme--dark .pagination-btn {
-   background: #1e293b;
-   border-color: #334155;
-}
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Theme specifics for Tailwind colors approximation without full palette */
-.text-slate-700 { color: #334155; }
-.text-slate-500 { color: #64748b; }
-.text-medium-emphasis { color: #64748b !important; }
-.theme--dark .text-medium-emphasis { color: #94a3b8 !important; }
-
 </style>
