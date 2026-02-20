@@ -14,16 +14,16 @@ import { createVuetify } from 'vuetify'
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: 'dark', // Set default to dark as per design
     themes: {
       light: {
         dark: false,
         colors: {
-          background: '#F8FAFC', // Slate 50
+          background: '#F8FAFC',
           surface: '#FFFFFF',
-          primary: '#6366F1', // Indigo 500
+          primary: '#6366F1',
           'primary-darken-1': '#4F46E5',
-          secondary: '#EC4899', // Pink 500
+          secondary: '#EC4899',
           'secondary-darken-1': '#DB2777',
           error: '#EF4444',
           info: '#3B82F6',
@@ -32,29 +32,27 @@ export default createVuetify({
           'on-background': '#1E293B',
           'on-surface': '#1E293B',
         },
-        variables: {
-          'border-color': '#E2E8F0',
-          'border-opacity': 1,
-        }
       },
       dark: {
         dark: true,
         colors: {
-          background: '#0F172A', // Slate 900
-          surface: '#1E293B', // Slate 800
-          primary: '#818CF8', // Indigo 400
-          'primary-darken-1': '#6366F1',
-          secondary: '#F472B6', // Pink 400
-          'secondary-darken-1': '#EC4899',
-          error: '#F87171',
-          info: '#60A5FA',
-          success: '#34D399',
-          warning: '#FBBF24',
-          'on-background': '#F1F5F9',
-          'on-surface': '#F1F5F9',
+          background: '#0B0F1A', // Deep Navy
+          surface: '#111827',     // Dark Card
+          'surface-light': '#1F2937', // Lighter Card used for inputs/borders
+          primary: '#6366F1',     // Indigo
+          'primary-darken-1': '#4F46E5',
+          secondary: '#8B5CF6',   // Purple
+          accent: '#06B6D4',      // Cyan
+          error: '#EF4444',       // Red
+          info: '#3B82F6',
+          success: '#10B981',     // Emerald
+          warning: '#F59E0B',     // Amber
+          'on-background': '#F9FAFB', // Text Primary
+          'on-surface': '#F9FAFB',
+          'text-secondary': '#9CA3AF',
         },
         variables: {
-          'border-color': '#334155',
+          'border-color': '#1F2937',
           'border-opacity': 1,
         }
       }
@@ -67,15 +65,12 @@ export default createVuetify({
     VCard: {
       elevation: 0,
       rounded: 'lg',
-      border: true,
-      class: 'v-card--modern',
+      border: true, // Vuetify uses border-color variable
     },
     VBtn: {
       rounded: 'lg',
       height: 44,
       elevation: 0,
-      variant: 'flat',
-      class: 'text-capitalize font-weight-bold letter-spacing-0',
     },
     VTextField: {
       variant: 'outlined',
@@ -83,6 +78,7 @@ export default createVuetify({
       color: 'primary',
       hideDetails: 'auto',
       rounded: 'lg',
+      bgColor: 'surface-light', // Use our custom surface-light color
     },
     VSelect: {
       variant: 'outlined',
@@ -90,18 +86,20 @@ export default createVuetify({
       color: 'primary',
       hideDetails: 'auto',
       rounded: 'lg',
+      bgColor: 'surface-light',
     },
     VNavigationDrawer: {
       elevation: 0,
       border: 'e',
+      color: 'background', // Match background
     },
     VAppBar: {
       elevation: 0,
       border: 'b',
+      color: 'background', // Transparent/Background
     },
-    VDataTable: {
-      hover: true,
-      density: 'comfortable',
+    VList: {
+      bgColor: 'transparent',
     }
   }
 })

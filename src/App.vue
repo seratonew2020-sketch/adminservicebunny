@@ -67,7 +67,7 @@
 <template>
   <v-app :theme="theme.global.name.value">
     <!-- Auth Loading State -->
-    <v-overlay v-if="authStore.loading" persistent class="align-center justify-center">
+    <v-overlay v-if="authStore.loading" persistent class="align-center justify-center bg-background" style="opacity: 0.8">
       <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
     </v-overlay>
 
@@ -76,42 +76,43 @@
       <v-navigation-drawer
         v-model="drawer"
         width="280"
-        color="surface"
+        color="background"
         class="border-e"
       >
         <!-- Logo Section -->
-        <div class="pa-6 d-flex align-center gap-3">
+        <div class="pa-6 d-flex align-center">
           <v-sheet
             width="40"
             height="40"
-            color="primary"
-            rounded="lg"
-            class="d-flex align-center justify-center"
+            color="transparent"
+            class="d-flex align-center justify-center mr-3 rounded-lg gradient-box"
           >
-            <v-icon icon="mdi-shield-check-outline" color="white"></v-icon>
+            <v-icon icon="mdi-shield-check-outline" color="white" size="24"></v-icon>
           </v-sheet>
           <div>
-            <div class="text-subtitle-1 font-weight-bold leading-tight line-clamp-1">{{ t('app_name') }}</div>
-            <div class="text-caption text-medium-emphasis">{{ t('enterprise_edition') }}</div>
+            <div class="text-subtitle-1 font-weight-bold" style="line-height: 1.2">{{ t('app_name') }}</div>
+            <div class="text-caption text-indigo-lighten-3 font-weight-medium">{{ t('enterprise_edition') }}</div>
           </div>
         </div>
 
-        <v-divider class="mx-4 opacity-10"></v-divider>
+        <v-divider class="mx-6 mb-4 opacity-20"></v-divider>
 
         <!-- Main Navigation Items -->
-        <v-list nav class="px-3 py-4">
+        <v-list nav class="px-4">
           <v-list-item
             v-for="item in navItems"
             :key="item.title"
             :value="item.title"
             :to="item.path"
             :exact="item.exact"
-            :prepend-icon="item.icon"
-            color="primary"
             rounded="lg"
-            class="mb-1"
+            class="mb-1 text-medium-emphasis"
+            active-class="text-primary bg-surface-light"
           >
-            <v-list-item-title class="text-sm font-weight-bold">
+            <template v-slot:prepend>
+              <v-icon :icon="item.icon" size="20" class="mr-2"></v-icon>
+            </template>
+            <v-list-item-title class="text-body-2 font-weight-medium">
               {{ t(item.title) }}
             </v-list-item-title>
           </v-list-item>
@@ -119,16 +120,20 @@
 
         <!-- Sidebar Footer -->
         <template v-slot:append>
-          <div class="pa-3">
-            <v-list nav>
+          <div class="pa-4">
+
+
+            <v-list nav density="compact" class="pa-0">
               <v-list-item
                 to="/settings"
                 exact
-                prepend-icon="mdi-cog-outline"
-                color="primary"
                 rounded="lg"
+                class="text-medium-emphasis"
               >
-                <v-list-item-title class="text-sm font-weight-bold">
+               <template v-slot:prepend>
+                  <v-icon icon="mdi-cog-outline" size="20" class="mr-2"></v-icon>
+                </template>
+                <v-list-item-title class="text-body-2 font-weight-medium">
                   {{ t('settings') }}
                 </v-list-item-title>
               </v-list-item>
@@ -139,10 +144,10 @@
 
       <!-- App Bar -->
       <v-app-bar
-        height="70"
+        height="64"
         flat
         class="border-b"
-        color="surface"
+        style="background: rgba(11, 15, 26, 0.8); backdrop-filter: blur(12px);"
       >
         <v-app-bar-nav-icon @click="drawer = !drawer" class="d-lg-none"></v-app-bar-nav-icon>
 
@@ -153,12 +158,27 @@
         <v-spacer></v-spacer>
 
         <!-- Action Items -->
-        <div class="d-flex align-center gap-2 mr-2">
-          <v-btn icon size="small" @click="toggleTheme" variant="text">
-            <v-icon :icon="theme.global.current.value.dark ? 'mdi-weather-night' : 'mdi-weather-sunny'"></v-icon>
+        <div class="d-flex align-center mr-4">
+          <!-- Search -->
+           <div class="mr-4 d-none d-md-block" style="width: 250px">
+                <v-text-field
+                  density="compact"
+                  variant="outlined"
+                  label="Search..."
+                  prepend-inner-icon="mdi-magnify"
+                  single-line
+                  hide-details
+                  rounded="lg"
+                  bg-color="surface-light"
+                  color="primary"
+                ></v-text-field>
+           </div>
+
+          <v-btn icon size="small" variant="text" color="medium-emphasis" class="mx-1">
+             <v-icon :icon="theme.global.current.value.dark ? 'mdi-weather-night' : 'mdi-weather-sunny'"></v-icon>
           </v-btn>
-          <v-btn icon size="small" @click="toggleLanguage" variant="text">
-            <v-icon icon="mdi-translate"></v-icon>
+           <v-btn icon size="small" variant="text" color="medium-emphasis" class="mx-1" @click="toggleLanguage">
+             <v-icon icon="mdi-translate"></v-icon>
           </v-btn>
 
           <NotificationMenu />
@@ -167,24 +187,28 @@
         <v-divider vertical inset class="mx-2"></v-divider>
 
         <!-- User Menu -->
-        <v-menu min-width="200" rounded="xl" transition="scale-transition">
+        <v-menu min-width="200" rounded="xl" transition="scale-transition" location="bottom end" offset="10">
           <template v-slot:activator="{ props }">
-            <div class="d-flex align-center gap-3 px-2 cursor-pointer" v-bind="props">
-              <div class="text-right d-none d-sm-block">
-                <p class="text-sm font-weight-bold mb-0 line-clamp-1">{{ user.email }}</p>
-                <p class="text-caption text-medium-emphasis mb-0">Administrator</p>
+            <v-btn variant="text" class="px-2 ml-2" rounded="lg" height="48" v-bind="props">
+              <div class="text-right d-none d-sm-block mr-3">
+                <div class="text-body-2 font-weight-medium">{{ user.email }}</div>
+                <div class="text-caption text-primary">Administrator</div>
               </div>
-              <v-avatar size="40" class="border">
+              <v-avatar size="36" class="border">
                 <v-img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBB1s4XPYI94tDtd0ZLTK0RpG76r13MHbNwl8kKre7D_7kTB75rLae28kZJ0GeQFIlWUiYN6H_3OQtatWZ3m8gHB496EsBRuxerS3lSMcsracnnpNaUzNocV080sKj9Ar5YPXZmtO3K1ylIzV9CIenH0pV8qHKScZoE4vHCU579QsGpSH4ylEtYoTOJjcavAVw6CnIZAqtpbyQUPN2aIEJ3SoLlGLr-T_BWnU5zP0SgWIglwPkQEHB76NpNIq7ml0GuTm-dU2_CKc"></v-img>
               </v-avatar>
-            </div>
+               <v-icon icon="mdi-chevron-down" size="16" class="ml-2 text-medium-emphasis"></v-icon>
+            </v-btn>
           </template>
-          <v-list>
+          <v-list class="py-1" density="compact" border rounded="xl" elevation="10" bg-color="surface">
             <v-list-item prepend-icon="mdi-account-outline" link>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-divider class="my-2"></v-divider>
-            <v-list-item prepend-icon="mdi-logout" color="error" @click="handleSignOut">
+            <v-list-item prepend-icon="mdi-cog-outline" link>
+               <v-list-item-title>Account Settings</v-list-item-title>
+            </v-list-item>
+            <v-divider class="my-1"></v-divider>
+            <v-list-item prepend-icon="mdi-logout" class="text-error" @click="handleSignOut">
               <v-list-item-title>Sign Out</v-list-item-title>
             </v-list-item>
           </v-list>
@@ -195,7 +219,9 @@
       <v-main class="bg-background">
         <router-view v-slot="{ Component }">
           <v-fade-transition hide-on-leave>
-            <component :is="Component" />
+             <div class="fill-height">
+                <component :is="Component" />
+             </div>
           </v-fade-transition>
         </router-view>
       </v-main>
@@ -203,75 +229,20 @@
 
     <!-- Login View (No App Frame) -->
     <template v-else>
-      <v-main class="w-100 h-100">
+      <v-main class="fill-height bg-background">
         <router-view />
       </v-main>
     </template>
   </v-app>
 </template>
 
-<style>
-/* Utilities */
-.gap-2 { gap: 8px; }
-.gap-3 { gap: 12px; }
-.gap-4 { gap: 16px; }
-.leading-tight { line-height: 1.25; }
-
-/* Line Clamp */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+<style scoped>
+.gradient-box {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
 }
-
-/* Custom Colors classes mapping if not in Vuetify theme */
-.text-emerald-500 { color: #10b981; }
-.bg-emerald-500 { background-color: #10b981; }
-.bg-emerald-50 { background-color: #ecfdf5; }
-
-.bg-amber-500 { background-color: #f59e0b; }
-.bg-amber-50 { background-color: #fffbeb; }
-
-.bg-blue-50 { background-color: #eff6ff; }
-.bg-blue-900 { background-color: #1e3a8a; }
-.text-blue-300 { color: #93c5fd; }
-.text-blue-800 { color: #1e40af; }
-
-.bg-purple-50 { background-color: #faf5ff; }
-.bg-purple-900 { background-color: #581c87; }
-.text-purple-300 { color: #d8b4fe; }
-.text-purple-800 { color: #6b21a8; }
-
-.bg-orange-50 { background-color: #fff7ed; }
-.bg-orange-900 { background-color: #7c2d12; }
-.text-orange-300 { color: #fdba74; }
-.text-orange-800 { color: #9a3412; }
-
-/* Search */
-.search-input {
-  width: 100%;
-  padding: 10px 16px 10px 40px;
-  border-radius: 8px;
-  outline: none;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-}
-.search-input:focus {
-   box-shadow: 0 0 0 2px rgb(var(--v-theme-primary));
-}
-
-/* Stats Card */
-.card-shadow {
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-.stats-icon {
-  width: 48px;
-  height: 48px;
-}
-
-/* Table */
-.v-data-table {
-  background: transparent !important;
+.gradient-card {
+    background: linear-gradient(160deg, #111827 0%, #0F172A 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 </style>

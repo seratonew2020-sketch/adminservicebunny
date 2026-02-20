@@ -1,90 +1,116 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import axios from "axios";
+
+// Create axios instance with interceptor
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || '/api', // Adjust base URL as needed
+});
+
 import { supabase } from "@/lib/supabase";
-import { fetchEmployeeByUserId } from "@/services/api"; // Use backend API
 
 export const useAuthStore = defineStore("auth", () => {
-  const user = ref(null);
-  const session = ref(null);
+  const user = ref(JSON.parse(localStorage.getItem('user')) || null);
+  const token = ref(localStorage.getItem('token') || null);
   const employee = ref(null);
   const loading = ref(false);
 
-  const adminEmails = [
-    'adm001@bunny.com',
-    'admin@bunny.com',
-    'adm002@bunny.com',
-    'manager1@bunny.com',
-    'manager2@bunny.com'
-  ];
+  // Set default auth header if token exists
+  if (token.value) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token.value}`;
+  }
 
   const isAdmin = computed(() => {
-    return user.value && adminEmails.includes(user.value.email);
+    return user.value?.role === 'admin' || user.value?.role === 'manager';
   });
 
-  const fetchEmployeeProfile = async () => {
-    if (!user.value) {
-      employee.value = null;
-      return;
-    }
-
-    try {
-      // Use backend API to bypass RLS issues
-      const data = await fetchEmployeeByUserId(user.value.id);
-      employee.value = data;
-    } catch (err) {
-      console.error('Unexpected error fetching profile:', err);
-    }
-  };
+  const isAuthenticated = computed(() => !!token.value);
 
   const fetchSession = async () => {
-    loading.value = true;
-    const { data } = await supabase.auth.getSession();
-    session.value = data.session;
-    user.value = data.session?.user ?? null;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      token.value = session.access_token;
+      // We still need to fetch the profile to get the role if it's in the 'users' table
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
 
-    if (user.value) {
-      await fetchEmployeeProfile();
+      const userData = {
+        id: session.user.id,
+        email: session.user.email,
+        role: profile?.role || 'user'
+      };
+      user.value = userData;
+      localStorage.setItem('token', session.access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+    } else {
+      signOut();
     }
-
-    loading.value = false;
-
-    // Listen for auth changes
-    supabase.auth.onAuthStateChange(async (_event, _session) => {
-      session.value = _session;
-      user.value = _session?.user ?? null;
-      if (user.value) {
-        await fetchEmployeeProfile();
-      } else {
-        employee.value = null;
-      }
-    });
   };
 
   const signIn = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    await fetchSession();
+    loading.value = true;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      const { user: sbUser, session } = data;
+
+      // Fetch profile for role
+      const { data: profile } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', sbUser.id)
+        .single();
+
+      const userData = {
+        id: sbUser.id,
+        email: sbUser.email,
+        role: profile?.role || 'user'
+      };
+
+      token.value = session.access_token;
+      user.value = userData;
+
+      localStorage.setItem('token', session.access_token);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      api.defaults.headers.common['Authorization'] = `Bearer ${session.access_token}`;
+
+    } catch (error) {
+      console.error("Login Error:", error);
+      throw new Error(error.message || 'Login failed');
+    } finally {
+      loading.value = false;
+    }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    token.value = null;
     user.value = null;
-    session.value = null;
     employee.value = null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    delete api.defaults.headers.common['Authorization'];
   };
 
   return {
     user,
-    session,
-    employee,
+    token,
+    employee, // Keep for compatibility if needed, though user object might have role
     loading,
-    fetchSession,
-    fetchEmployeeProfile,
+    isAuthenticated,
+    isAdmin,
     signIn,
     signOut,
-    isAdmin,
+    fetchSession
   };
 });

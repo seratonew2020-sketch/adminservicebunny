@@ -12,6 +12,9 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AdminDashboard: typeof import('./src/components/AdminDashboard.vue')['default']
+    BaseButton: typeof import('./src/components/ui/BaseButton.vue')['default']
+    BaseCard: typeof import('./src/components/ui/BaseCard.vue')['default']
+    BaseInput: typeof import('./src/components/ui/BaseInput.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
