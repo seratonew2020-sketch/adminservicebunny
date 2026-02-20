@@ -381,7 +381,7 @@ export const fetchNotificationPreferences = async (userId) => {
       .from('notification_preferences')
       .select('*')
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
 
     if (error && error.code !== 'PGRST116') throw error // Ignore no rows found
     return data || { email_enabled: true, in_app_enabled: true } // Default
@@ -420,6 +420,40 @@ export const fetchRawAttendanceLogs = async (params) => {
   } catch (error) {
     console.error('Error fetching raw attendance logs:', error)
     return []
+  }
+}
+
+// ==========================================================
+// Time Correction API
+// ==========================================================
+
+export const fetchTimeCorrections = async (filters = {}) => {
+  try {
+    const response = await backendClient.get('/time-corrections', { params: filters });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching time corrections:', error);
+    return { data: [], total: 0 };
+  }
+}
+
+export const createTimeCorrection = async (data) => {
+  try {
+    const response = await backendClient.post('/time-corrections', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating time correction:', error);
+    throw error;
+  }
+}
+
+export const updateTimeCorrectionStatus = async (id, payload) => {
+  try {
+    const response = await backendClient.put(`/time-corrections/${id}/status`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating time correction status:', error);
+    throw error;
   }
 }
 
@@ -524,5 +558,9 @@ export default {
   deleteHoliday,
   fetchLeavesForSchedule,
   fetchEmployeesByCodes,
-  fetchDepartments
+  fetchDepartments,
+  fetchEmployeeByUserId,
+  fetchTimeCorrections,
+  createTimeCorrection,
+  updateTimeCorrectionStatus
 };

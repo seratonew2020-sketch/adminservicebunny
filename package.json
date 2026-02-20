@@ -64,6 +64,7 @@
     "npm-run-all2": "^8.0.4",
     "playwright": "^1.58.0-alpha-2025-12-29",
     "sass": "^1.97.2",
+    "supertest": "^7.2.2",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^31.0.0",
     "unplugin-vue-router": "^0.19.2",

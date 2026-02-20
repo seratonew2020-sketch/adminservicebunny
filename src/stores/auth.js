@@ -35,7 +35,7 @@ export const useAuthStore = defineStore("auth", () => {
         .from('users')
         .select('role')
         .eq('id', session.user.id)
-        .single();
+        .maybeSingle();
 
       const userData = {
         id: session.user.id,
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
         .from('users')
         .select('role')
         .eq('id', sbUser.id)
-        .single();
+        .maybeSingle();
 
       const userData = {
         id: sbUser.id,

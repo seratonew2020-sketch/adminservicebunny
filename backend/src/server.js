@@ -8,11 +8,8 @@ import leaveRoutes from "./routes/leaves.js";
 import employeeRoutes from "./routes/employees.js";
 import holidayRoutes from "./routes/holidays.js";
 import departmentsRoutes from "./routes/departments.js";
+import timeCorrectionRoutes from "./routes/timeCorrections.js";
 import { startCronJobs } from "./jobs/reminder.js";
-import {
-  fetchReportData,
-  generatePDFReport,
-} from "./services/reportService.js";
 
 // 1. โหลด Environment Variables
 dotenv.config();
@@ -93,6 +90,7 @@ fastify.register(leaveRoutes, { prefix: "/api" });
 fastify.register(employeeRoutes, { prefix: "/api" });
 fastify.register(holidayRoutes, { prefix: "/api" });
 fastify.register(departmentsRoutes, { prefix: "/api" });
+fastify.register(timeCorrectionRoutes, { prefix: "/api" });
 
 // Start Cron Jobs
 // Only start cron jobs if running directly (not imported as a module)
@@ -137,45 +135,6 @@ fastify.get("/api/health", async (request, reply) => {
       timestamp: new Date().toISOString(),
       database: "disconnected",
       error: process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-});
-
-// Route สำหรับรายงาน PDF (Legacy/Direct)
-fastify.get("/report/pdf", async (request, reply) => {
-  const { startDate, endDate } = request.query;
-
-  if (!startDate || !endDate) {
-    return reply.code(400).send({ error: "Missing startDate or endDate" });
-  }
-
-  try {
-    // Validate date format
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return reply.code(400).send({ error: "Invalid date format. Use YYYY-MM-DD" });
-    }
-
-    if (start > end) {
-      return reply.code(400).send({ error: "startDate must be before endDate" });
-    }
-
-    const data = await fetchReportData(startDate, endDate);
-    const pdfBuffer = await generatePDFReport(data);
-
-    reply.header("Content-Type", "application/pdf");
-    reply.header(
-      "Content-Disposition",
-      `attachment; filename="attendance-report-${startDate}.pdf"`,
-    );
-    return reply.send(pdfBuffer);
-  } catch (err) {
-    fastify.log.error(err);
-    return reply.code(500).send({
-      error: "Failed to generate report",
-      message: process.env.NODE_ENV === "development" ? err.message : "Internal server error"
     });
   }
 });

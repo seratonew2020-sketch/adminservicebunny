@@ -47,6 +47,7 @@ declare module 'vue' {
     VDatePicker: typeof import('vuetify/components')['VDatePicker']
     VDialog: typeof import('vuetify/components')['VDialog']
     VDivider: typeof import('vuetify/components')['VDivider']
+    VExpandTransition: typeof import('vuetify/components')['VExpandTransition']
     VFadeTransition: typeof import('vuetify/components')['VFadeTransition']
     VFileInput: typeof import('vuetify/components')['VFileInput']
     VForm: typeof import('vuetify/components')['VForm']

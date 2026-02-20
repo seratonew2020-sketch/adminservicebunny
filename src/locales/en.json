@@ -30,5 +30,8 @@
   "employee_leaves_table": "Employee Leaves Table",
   "request_leave": "Request Leave",
   "my_schedule": "My Schedule",
-  "my_profile": "My Profile"
+  "my_profile": "My Profile",
+  "request_time_correction": "Missed Punch Request",
+  "my_time_corrections": "My Time Corrections",
+  "time_corrections": "Time Corrections"
 }

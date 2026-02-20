@@ -149,6 +149,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/hr/time-correction-approvals': RouteRecordInfo<
+      '/hr/time-correction-approvals',
+      '/hr/time-correction-approvals',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/leaves/approvals': RouteRecordInfo<
       '/leaves/approvals',
       '/leaves/approvals',
@@ -201,6 +208,20 @@ declare module 'vue-router/auto-routes' {
     '/settingtime': RouteRecordInfo<
       '/settingtime',
       '/settingtime',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/time-correction/my-requests': RouteRecordInfo<
+      '/time-correction/my-requests',
+      '/time-correction/my-requests',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/time-correction/request': RouteRecordInfo<
+      '/time-correction/request',
+      '/time-correction/request',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -340,6 +361,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/hr/time-correction-approvals.vue': {
+      routes:
+        | '/hr/time-correction-approvals'
+      views:
+        | never
+    }
     'src/pages/leaves/approvals.vue': {
       routes:
         | '/leaves/approvals'
@@ -385,6 +412,18 @@ declare module 'vue-router/auto-routes' {
     'src/pages/settingtime.vue': {
       routes:
         | '/settingtime'
+      views:
+        | never
+    }
+    'src/pages/time-correction/my-requests.vue': {
+      routes:
+        | '/time-correction/my-requests'
+      views:
+        | never
+    }
+    'src/pages/time-correction/request.vue': {
+      routes:
+        | '/time-correction/request'
       views:
         | never
     }

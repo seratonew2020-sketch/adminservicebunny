@@ -30,5 +30,8 @@
   "employee_leaves_table": "ตารางวันหยุดพนักงาน",
   "request_leave": "ขอลาหยุด",
   "my_schedule": "ตารางงานของฉัน",
-  "my_profile": "โปรไฟล์ของฉัน"
+  "my_profile": "โปรไฟล์ของฉัน",
+  "request_time_correction": "แจ้งลืมบุ๊กเวลา",
+  "my_time_corrections": "ประวัติแจ้งลืมสแกนเวลา",
+  "time_corrections": "คำขอแจ้งลืมสแกนเวลา"
 }

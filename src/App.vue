@@ -49,6 +49,7 @@
         { title: 'schedule', icon: 'mdi-calendar-clock-outline', path: '/schedule', exact: true },
         { title: 'leave_approvals', icon: 'mdi-check-decagram', path: '/leaves/approvals', exact: true },
         { title: 'employee_leaves_table', icon: 'mdi-table-large', path: '/employee-leaves-table', exact: true },
+        { title: 'time_corrections', icon: 'mdi-clock-alert-outline', path: '/hr/time-correction-approvals', exact: true },
         { title: 'holidays', icon: 'mdi-calendar-star', path: '/holidays', exact: true },
         { title: 'fingerprint_scan', icon: 'mdi-fingerprint', path: '/fingerprintscan', exact: true },
       ]
@@ -57,7 +58,9 @@
         { title: 'my_profile', icon: 'mdi-account', path: '/employee/profile', exact: true },
         { title: 'dashboard', icon: 'mdi-view-dashboard-outline', path: '/employee/profile?view=dashboard', exact: true }, // Redirect to profile as dashboard
         { title: 'request_leave', icon: 'mdi-calendar-plus', path: '/leaves/request', exact: true },
+        { title: 'request_time_correction', icon: 'mdi-clock-edit-outline', path: '/time-correction/request', exact: true },
         { title: 'my_schedule', icon: 'mdi-calendar-clock-outline', path: '/employee/leave-schedule', exact: true },
+        { title: 'my_time_corrections', icon: 'mdi-history', path: '/time-correction/my-requests', exact: true },
         { title: 'holidays', icon: 'mdi-calendar-star', path: '/holidays', exact: true },
       ]
     }
